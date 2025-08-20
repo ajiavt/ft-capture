@@ -135,13 +135,18 @@ class FTCapture {
     }
 
     this.settingsWindow = new BrowserWindow({
-      width: 800,
-      height: 600,
+      width: 1200,
+      height: 800,
+      minWidth: 1000,
+      minHeight: 700,
       webPreferences: {
         nodeIntegration: true,
         contextIsolation: false
       },
-      title: 'FT Capture Settings'
+      title: 'FT Capture Settings',
+      titleBarStyle: 'hiddenInset',
+      vibrancy: 'window',
+      backgroundColor: '#f5f5f5'
     });
 
     this.settingsWindow.loadFile('src/settings.html');
@@ -711,4 +716,3 @@ app.on('activate', () => {
     ftCapture.openSettings();
   }
 });
-

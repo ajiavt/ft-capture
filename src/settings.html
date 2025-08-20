@@ -4,146 +4,326 @@
     <meta charset="UTF-8">
     <title>FT Capture Settings</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        * {
             margin: 0;
-            padding: 20px;
-            background: #f5f5f5;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+
+        html, body {
+            height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             overflow: hidden;
         }
+
+        .app-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
         .header {
-            background: #007AFF;
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
             color: white;
             padding: 20px;
             text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            flex-shrink: 0;
         }
-        .content {
-            padding: 20px;
-        }
-        .section {
-            margin-bottom: 30px;
-        }
-        .section h3 {
-            margin-top: 0;
-            color: #333;
-            border-bottom: 2px solid #007AFF;
-            padding-bottom: 10px;
-        }
-        .macro-item {
+
+        .header-content {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            background: #fafafa;
+            justify-content: center;
+            gap: 15px;
         }
+
+        .app-icon {
+            width: 48px;
+            height: 48px;
+            background: #fff;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .app-title {
+            font-size: 28px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .app-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 50%;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(0,0,0,0.1);
+            padding: 30px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .content-area {
+            width: 50%;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .section {
+            margin-bottom: 35px;
+        }
+
+        .section h3 {
+            color: #2E7D32;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .macro-item {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            background: white;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .macro-item:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            border-color: #4CAF50;
+            transform: translateY(-2px);
+        }
+
         .macro-info {
             flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 15px;
         }
+
+        .macro-color-indicator {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 3px solid rgba(255,255,255,0.8);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+        }
+
+        .macro-details {
+            flex: 1;
+        }
+
         .macro-name {
-            font-weight: bold;
-            margin-bottom: 5px;
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 6px;
+            color: #333;
         }
+
         .macro-hotkey {
-            font-size: 12px;
+            font-size: 13px;
             color: #666;
-            background: #e8e8e8;
-            padding: 2px 6px;
-            border-radius: 3px;
+            background: #f5f5f5;
+            padding: 6px 12px;
+            border-radius: 6px;
             display: inline-block;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-weight: 500;
         }
+
         .macro-area {
             font-size: 12px;
-            color: #666;
+            color: #888;
         }
+
         .area-assigned {
-            color: #34C759;
+            color: #4CAF50;
+            font-weight: 600;
         }
+
         .area-pending {
-            color: #FF9500;
+            color: #FF9800;
+            font-weight: 600;
         }
-        .hotkey-input {
-            width: 120px;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin: 0 10px;
+
+        .macro-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-start;
+            flex-wrap: wrap;
         }
+
         .btn {
-            padding: 8px 16px;
+            padding: 10px 16px;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
-            margin: 0 5px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
+
         .btn-primary {
-            background: #007AFF;
+            background: #4CAF50;
             color: white;
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
         }
-        .btn-success {
-            background: #34C759;
+
+        .btn-primary:hover {
+            background: #45a049;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-secondary {
+            background: #2196F3;
             color: white;
+            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
         }
+
+        .btn-secondary:hover {
+            background: #1976D2;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+        }
+
         .btn-warning {
-            background: #FF9500;
+            background: #FF9800;
             color: white;
+            box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
         }
+
+        .btn-warning:hover {
+            background: #F57C00;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+        }
+
         .btn-danger {
-            background: #FF3B30;
+            background: #F44336;
             color: white;
+            box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
         }
-        .btn:hover {
-            opacity: 0.8;
+
+        .btn-danger:hover {
+            background: #D32F2F;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
         }
+
+        .btn-ghost {
+            background: rgba(255,255,255,0.9);
+            color: #666;
+            border: 2px solid #e0e0e0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .btn-ghost:hover {
+            background: white;
+            border-color: #4CAF50;
+            color: #4CAF50;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
         .add-macro-btn {
             width: 100%;
-            padding: 15px;
-            background: #007AFF;
+            padding: 20px;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 16px;
             cursor: pointer;
-            font-size: 16px;
-            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
         }
+
+        .add-macro-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(76, 175, 80, 0.4);
+        }
+
+        .settings-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
         .settings-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 15px 0;
-            border-bottom: 1px solid #eee;
+            padding: 20px 0;
+            border-bottom: 1px solid #f0f0f0;
         }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-label {
+            font-weight: 600;
+            font-size: 16px;
+            color: #333;
+        }
+
         .save-path-input {
             flex: 1;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-right: 10px;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            margin-right: 12px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
         }
-        .instructions {
-            background: #E3F2FD;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 20px;
+
+        .save-path-input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
         }
-        .instructions h4 {
-            margin-top: 0;
-            color: #1976D2;
-        }
-        .instructions ol {
-            margin: 10px 0;
-            padding-left: 20px;
-        }
+
         .modal {
             display: none;
             position: fixed;
@@ -152,104 +332,286 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            background-color: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
         }
+
         .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border-radius: 8px;
-            width: 400px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 16px;
+            width: 500px;
+            max-width: 90vw;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease-out;
         }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal h3 {
+            color: #2E7D32;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 22px;
+        }
+
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
+
         .form-group label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
         }
+
         .form-group input {
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
         }
-        .color-preset {
-            width: 24px;
-            height: 24px;
-            border-radius: 4px;
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        .color-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .color-picker {
+            width: 60px;
+            height: 50px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
             cursor: pointer;
-            border: 1px solid #ddd;
+            background: none;
+        }
+
+        .color-presets {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .color-preset {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .color-preset:hover {
+            transform: scale(1.1);
+            border-color: rgba(255,255,255,0.8);
+        }
+
+        .color-preset.selected {
+            border-color: #333;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        .hotkey-input {
+            background: #f8f9fa !important;
+            font-family: 'Monaco', 'Menlo', monospace;
+            cursor: pointer;
+        }
+
+        .hotkey-input.listening {
+            background: #e3f2fd !important;
+            border-color: #2196F3 !important;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .scrollable {
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        .scrollable::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scrollable::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .scrollable::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        .scrollable::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="app-container">
         <div class="header">
-            <h2>FT Capture Settings</h2>
+            <div class="header-content">
+                <div class="app-icon">📸</div>
+                <div>
+                    <div class="app-title">FT Capture</div>
+                    <div class="app-subtitle">Professional Screenshot Tool</div>
+                </div>
+            </div>
         </div>
 
-        <div class="content">
-            <div class="instructions">
-                <h4>How to Use FT Capture:</h4>
-                <ol>
-                    <li><strong>Add New Macro</strong> - Create a macro with name and hotkey</li>
-                    <li><strong>Assign Area</strong> - Click "Set Area" to visually select screenshot region</li>
-                    <li><strong>Use Macro</strong> - Press your hotkey to capture and copy to clipboard</li>
-                    <li><strong>Paste</strong> - Use Ctrl+V in Word or any application</li>
-                </ol>
-            </div>
-
-            <div class="section">
-                <h3>Macros & Areas</h3>
-                <button class="add-macro-btn" onclick="showAddMacroModal()">
-                    ➕ Add New Macro
-                </button>
-                <div id="macros-list">
-                    <!-- Macros will be populated here -->
-                </div>
-            </div>
-
-            <div class="section">
-                <h3>General Settings</h3>
-                <div class="settings-item">
-                    <label>Save Path (images saved to Desktop by default):</label>
-                    <div style="display: flex; flex: 1; margin-left: 20px;">
-                        <input type="text" id="save-path" class="save-path-input" placeholder="Default: Desktop">
-                        <button class="btn btn-primary" onclick="browseSavePath()">Browse</button>
+        <div class="main-content">
+            <div class="content-area">
+                <div class="section">
+                    <h3>⚙️ General Settings</h3>
+                    <div class="settings-card">
+                        <div class="settings-item">
+                            <span class="settings-label">Save Path:</span>
+                            <div style="display: flex; flex: 1; margin-left: 20px;">
+                                <input type="text" id="save-path" class="save-path-input" placeholder="Default: Desktop">
+                                <button class="btn btn-secondary" onclick="browseSavePath()">Browse</button>
+                            </div>
+                        </div>
+                        <div class="settings-item">
+                            <span class="settings-label">Auto-save to file:</span>
+                            <input type="checkbox" id="auto-save" onchange="toggleAutoSave()">
+                        </div>
                     </div>
                 </div>
-                <div class="settings-item">
-                    <label>Auto-save to file (in addition to clipboard):</label>
-                    <input type="checkbox" id="auto-save" onchange="toggleAutoSave()">
+
+                <div class="section">
+                    <h3>ℹ️ How to Use</h3>
+                    <div class="settings-card">
+                        <ol style="padding-left: 20px; line-height: 2; font-size: 15px;">
+                            <li><strong>Add New Macro</strong> - Create a macro with name, hotkey, and color theme</li>
+                            <li><strong>Assign Area</strong> - Click "Set Area" to visually select screenshot region</li>
+                            <li><strong>Use Macro</strong> - Press your hotkey to capture and copy to clipboard</li>
+                            <li><strong>Paste</strong> - Use Ctrl+V in Word or any application</li>
+                            <li><strong>Edit Macro</strong> - Click edit button to change name, hotkey, or color</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>📊 Statistics</h3>
+                    <div class="settings-card">
+                        <div class="stats-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="stat-item" style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 12px;">
+                                <div style="font-size: 32px; font-weight: 700; color: #4CAF50;" id="total-macros">0</div>
+                                <div style="font-size: 14px; color: #666; margin-top: 8px;">Total Macros</div>
+                            </div>
+                            <div class="stat-item" style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 12px;">
+                                <div style="font-size: 32px; font-weight: 700; color: #2196F3;" id="ready-macros">0</div>
+                                <div style="font-size: 14px; color: #666; margin-top: 8px;">Ready to Use</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>🎨 Color Themes</h3>
+                    <div class="settings-card">
+                        <p style="margin-bottom: 20px; color: #666; font-size: 15px; line-height: 1.6;">
+                            Choose different colors for your macros to easily identify them. Each macro can have its own unique color theme that will be reflected in notifications and indicators.
+                        </p>
+                        <div class="color-themes" style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            <div class="theme-sample" style="display: flex; align-items: center; gap: 8px; padding: 12px; background: #f8f9fa; border-radius: 8px;">
+                                <div style="width: 20px; height: 20px; background: #4CAF50; border-radius: 4px;"></div>
+                                <span style="font-size: 14px; color: #666;">Green</span>
+                            </div>
+                            <div class="theme-sample" style="display: flex; align-items: center; gap: 8px; padding: 12px; background: #f8f9fa; border-radius: 8px;">
+                                <div style="width: 20px; height: 20px; background: #2196F3; border-radius: 4px;"></div>
+                                <span style="font-size: 14px; color: #666;">Blue</span>
+                            </div>
+                            <div class="theme-sample" style="display: flex; align-items: center; gap: 8px; padding: 12px; background: #f8f9fa; border-radius: 8px;">
+                                <div style="width: 20px; height: 20px; background: #FF9800; border-radius: 4px;"></div>
+                                <span style="font-size: 14px; color: #666;">Orange</span>
+                            </div>
+                            <div class="theme-sample" style="display: flex; align-items: center; gap: 8px; padding: 12px; background: #f8f9fa; border-radius: 8px;">
+                                <div style="width: 20px; height: 20px; background: #9C27B0; border-radius: 4px;"></div>
+                                <span style="font-size: 14px; color: #666;">Purple</span>
+                            </div>
+                            <div class="theme-sample" style="display: flex; align-items: center; gap: 8px; padding: 12px; background: #f8f9fa; border-radius: 8px;">
+                                <div style="width: 20px; height: 20px; background: #F44336; border-radius: 4px;"></div>
+                                <span style="font-size: 14px; color: #666;">Red</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <button class="add-macro-btn" onclick="showAddMacroModal()">
+                    Add New Macro
+                </button>
+
+                <div class="section">
+                    <h3>📋 Your Macros</h3>
+                    <div id="macros-list" class="scrollable">
+                        <!-- Macros will be populated here -->
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Add Macro Modal -->
-    <div id="addMacroModal" class="modal">
+    <!-- Add/Edit Macro Modal -->
+    <div id="macroModal" class="modal">
         <div class="modal-content">
-            <h3>Add New Macro</h3>
+            <h3 id="modal-title">Add New Macro</h3>
             <div class="form-group">
                 <label for="macro-name">Macro Name:</label>
                 <input type="text" id="macro-name" placeholder="e.g. Top Left Area">
             </div>
             <div class="form-group">
-                <label for="macro-hotkey">Hotkey (click here and press your key combination):</label>
-                <input type="text" id="macro-hotkey" placeholder="Click here and press keys..." readonly style="cursor: pointer; background: #f0f0f0;">
+                <label for="macro-hotkey">Hotkey:</label>
+                <input type="text" id="macro-hotkey" class="hotkey-input" placeholder="Click here and press your key combination..." readonly>
                 <small style="color: #666; display: block; margin-top: 5px;">
                     Examples: Cmd+1, Ctrl+Shift+A, Alt+F1, etc.
                 </small>
             </div>
             <div class="form-group">
                 <label for="macro-color">Color Theme:</label>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <input type="color" id="macro-color" value="#4CAF50" style="width: 50px; height: 40px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">
-                    <div style="display: flex; gap: 8px;">
+                <div class="color-group">
+                    <input type="color" id="macro-color" class="color-picker" value="#4CAF50">
+                    <div class="color-presets">
                         <div class="color-preset" data-color="#4CAF50" style="background: #4CAF50;"></div>
                         <div class="color-preset" data-color="#2196F3" style="background: #2196F3;"></div>
                         <div class="color-preset" data-color="#FF9800" style="background: #FF9800;"></div>
@@ -262,9 +624,9 @@
                     Choose a color for the notification theme
                 </small>
             </div>
-            <div style="text-align: right; margin-top: 20px;">
-                <button class="btn btn-danger" onclick="hideAddMacroModal()">Cancel</button>
-                <button class="btn btn-success" onclick="addMacro()" id="create-macro-btn" disabled>Create Macro</button>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" onclick="hideMacroModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveMacro()" id="save-macro-btn" disabled>Save Macro</button>
             </div>
         </div>
     </div>
@@ -274,73 +636,128 @@
         const Store = require('electron-store');
         const store = new Store();
 
-        // Load settings on startup
+        let currentEditingMacro = null;
+        let detectingHotkey = false;
+
         document.addEventListener('DOMContentLoaded', () => {
             loadMacros();
             loadSettings();
-
-            // Add click handlers for color presets
-            document.querySelectorAll('.color-preset').forEach(preset => {
-                preset.addEventListener('click', () => {
-                    const color = preset.dataset.color;
-                    document.getElementById('macro-color').value = color;
-                });
-            });
+            setupColorPresets();
         });
 
         function loadMacros() {
             const macros = store.get('macros', []);
             const macrosList = document.getElementById('macros-list');
 
+            // Update statistics
+            updateStatistics(macros);
+
             if (macros.length === 0) {
-                macrosList.innerHTML = '<p style="text-align: center; color: #666;">No macros created yet. Click "Add New Macro" to get started.</p>';
+                macrosList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📷</div>
+                        <p>No macros created yet.<br>Click "Add New Macro" to get started.</p>
+                    </div>
+                `;
                 return;
             }
 
             macrosList.innerHTML = macros.map(macro => `
                 <div class="macro-item">
                     <div class="macro-info">
-                        <div class="macro-name">${macro.name}</div>
-                        <div class="macro-hotkey">${macro.hotkey}</div>
-                        <div class="macro-area ${macro.area ? 'area-assigned' : 'area-pending'}">
-                            ${macro.area ?
-                                `Area: ${macro.area.x}, ${macro.area.y} (${macro.area.width} × ${macro.area.height})` :
-                                'No area assigned - Click "Set Area" to configure'
-                            }
+                        <div class="macro-color-indicator" style="background: ${macro.color || '#4CAF50'};"></div>
+                        <div class="macro-details">
+                            <div class="macro-name">${macro.name}</div>
+                            <div class="macro-hotkey">${macro.hotkey}</div>
+                            <div class="macro-area ${macro.area ? 'area-assigned' : 'area-pending'}">
+                                ${macro.area ?
+                                    `Area: ${macro.area.x}, ${macro.area.y} (${macro.area.width} × ${macro.area.height})` :
+                                    'No area assigned'
+                                }
+                            </div>
                         </div>
                     </div>
-                    <div style="display: flex; align-items: center;">
+                    <div class="macro-actions">
+                        <button class="btn btn-ghost" onclick="editMacro('${macro.id}')">Edit</button>
                         ${macro.area ?
                             `<button class="btn btn-warning" onclick="setMacroArea('${macro.id}')">Change Area</button>` :
-                            `<button class="btn btn-success" onclick="setMacroArea('${macro.id}')">Set Area</button>`
+                            `<button class="btn btn-primary" onclick="setMacroArea('${macro.id}')">Set Area</button>`
                         }
-                        <button class="btn btn-primary" onclick="testMacro('${macro.id}')">Test</button>
+                        <button class="btn btn-secondary" onclick="testMacro('${macro.id}')">Test</button>
                         <button class="btn btn-danger" onclick="removeMacro('${macro.id}')">Delete</button>
                     </div>
                 </div>
             `).join('');
         }
 
+        function updateStatistics(macros) {
+            const totalMacros = macros.length;
+            const readyMacros = macros.filter(m => m.area).length;
+
+            document.getElementById('total-macros').textContent = totalMacros;
+            document.getElementById('ready-macros').textContent = readyMacros;
+        }
+
         function loadSettings() {
             const savePath = store.get('savePath', '');
-            const autoSave = store.get('autoSave', true); // Default to true for auto-save
-
+            const autoSave = store.get('autoSave', true);
             document.getElementById('save-path').value = savePath;
             document.getElementById('auto-save').checked = autoSave;
         }
 
-        function showAddMacroModal() {
-            document.getElementById('addMacroModal').style.display = 'block';
-            document.getElementById('macro-name').focus();
+        function setupColorPresets() {
+            document.querySelectorAll('.color-preset').forEach(preset => {
+                preset.addEventListener('click', () => {
+                    const color = preset.dataset.color;
+                    document.getElementById('macro-color').value = color;
+                    document.querySelectorAll('.color-preset').forEach(p => p.classList.remove('selected'));
+                    preset.classList.add('selected');
+                });
+            });
         }
 
-        function hideAddMacroModal() {
-            document.getElementById('addMacroModal').style.display = 'none';
+        function showAddMacroModal() {
+            currentEditingMacro = null;
+            document.getElementById('modal-title').textContent = 'Add New Macro';
             document.getElementById('macro-name').value = '';
             document.getElementById('macro-hotkey').value = '';
+            document.getElementById('macro-color').value = '#4CAF50';
+            document.getElementById('save-macro-btn').textContent = 'Save Macro';
+            document.getElementById('save-macro-btn').disabled = true;
+            document.getElementById('macroModal').style.display = 'block';
+
+            document.querySelectorAll('.color-preset').forEach(p => p.classList.remove('selected'));
+            document.querySelector('.color-preset[data-color="#4CAF50"]').classList.add('selected');
         }
 
-        function addMacro() {
+        function editMacro(macroId) {
+            const macros = store.get('macros', []);
+            const macro = macros.find(m => m.id === macroId);
+
+            if (!macro) return;
+
+            currentEditingMacro = macro;
+            document.getElementById('modal-title').textContent = 'Edit Macro';
+            document.getElementById('macro-name').value = macro.name;
+            document.getElementById('macro-hotkey').value = macro.hotkey;
+            document.getElementById('macro-color').value = macro.color || '#4CAF50';
+            document.getElementById('save-macro-btn').textContent = 'Update Macro';
+            document.getElementById('save-macro-btn').disabled = false;
+            document.getElementById('macroModal').style.display = 'block';
+
+            document.querySelectorAll('.color-preset').forEach(p => p.classList.remove('selected'));
+            const selectedPreset = document.querySelector(`[data-color="${macro.color || '#4CAF50'}"]`);
+            if (selectedPreset) selectedPreset.classList.add('selected');
+        }
+
+        function hideMacroModal() {
+            document.getElementById('macroModal').style.display = 'none';
+            currentEditingMacro = null;
+            detectingHotkey = false;
+            document.getElementById('macro-hotkey').classList.remove('listening');
+        }
+
+        function saveMacro() {
             const name = document.getElementById('macro-name').value.trim();
             const hotkey = document.getElementById('macro-hotkey').value.trim();
             const color = document.getElementById('macro-color').value;
@@ -350,49 +767,59 @@
                 return;
             }
 
-            // Check if hotkey already exists
-            const macros = store.get('macros', []);
-            if (macros.some(m => m.hotkey === hotkey)) {
-                alert('Hotkey already exists! Please choose a different one.');
-                return;
+            let macros = store.get('macros', []);
+
+            if (currentEditingMacro) {
+                const index = macros.findIndex(m => m.id === currentEditingMacro.id);
+                if (index !== -1) {
+                    const conflictingMacro = macros.find(m => m.hotkey === hotkey && m.id !== currentEditingMacro.id);
+                    if (conflictingMacro) {
+                        alert('Hotkey already exists! Please choose a different one.');
+                        return;
+                    }
+
+                    macros[index] = {
+                        ...macros[index],
+                        name: name,
+                        hotkey: hotkey,
+                        color: color
+                    };
+                }
+            } else {
+                if (macros.some(m => m.hotkey === hotkey)) {
+                    alert('Hotkey already exists! Please choose a different one.');
+                    return;
+                }
+
+                const macro = {
+                    id: Date.now().toString(),
+                    name: name,
+                    hotkey: hotkey,
+                    color: color,
+                    area: null
+                };
+                macros.push(macro);
             }
 
-            const macro = {
-                id: Date.now().toString(),
-                name: name,
-                hotkey: hotkey,
-                color: color,
-                area: null
-            };
-
-            macros.push(macro);
             store.set('macros', macros);
-
-            hideAddMacroModal();
+            hideMacroModal();
             loadMacros();
-
-            // Notify main process to register hotkey
             ipcRenderer.send('refresh-hotkeys');
         }
 
         function setMacroArea(macroId) {
-            // Store which macro we're setting area for
             store.set('currentMacroId', macroId);
-
-            // Start area selection
             ipcRenderer.send('start-area-selection');
-            window.close(); // Close settings during selection
+            window.close();
         }
 
         function testMacro(macroId) {
             const macros = store.get('macros', []);
             const macro = macros.find(m => m.id === macroId);
-
             if (!macro || !macro.area) {
                 alert('Please set an area for this macro first');
                 return;
             }
-
             ipcRenderer.send('test-capture', macroId);
         }
 
@@ -401,7 +828,6 @@
                 let macros = store.get('macros', []);
                 macros = macros.filter(m => m.id !== macroId);
                 store.set('macros', macros);
-
                 loadMacros();
                 ipcRenderer.send('refresh-hotkeys');
             }
@@ -412,7 +838,6 @@
             const result = dialog.showOpenDialogSync({
                 properties: ['openDirectory']
             });
-
             if (result && result[0]) {
                 document.getElementById('save-path').value = result[0];
                 store.set('savePath', result[0]);
@@ -424,34 +849,12 @@
             store.set('autoSave', autoSave);
         }
 
-        // Listen for area selection completion
-        ipcRenderer.on('area-assigned', (event) => {
-            loadMacros();
-        });
-
-        // Modal click outside to close
-        window.onclick = function(event) {
-            const modal = document.getElementById('addMacroModal');
-            if (event.target == modal) {
-                hideAddMacroModal();
-            }
-        }
-
-        // ESC key to close modal
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                hideAddMacroModal();
-            }
-        });
-
         // Hotkey detection
-        let detectingHotkey = false;
-
         document.getElementById('macro-hotkey').addEventListener('click', function() {
             detectingHotkey = true;
             this.value = 'Listening... Press your key combination';
-            this.style.background = '#e0f7fa';
-            document.getElementById('create-macro-btn').disabled = true;
+            this.classList.add('listening');
+            document.getElementById('save-macro-btn').disabled = true;
         });
 
         document.addEventListener('keydown', function(event) {
@@ -459,46 +862,34 @@
                 event.preventDefault();
                 event.stopPropagation();
 
-                // Skip if it's just a modifier key alone
                 if (['Control', 'Shift', 'Alt', 'Meta', 'Cmd', 'Command'].includes(event.key)) {
                     return;
                 }
 
                 const modifierKeys = [];
-
-                // Build modifier keys array
                 if (event.ctrlKey) modifierKeys.push('CommandOrControl');
                 if (event.shiftKey) modifierKeys.push('Shift');
                 if (event.altKey) modifierKeys.push('Alt');
                 if (event.metaKey && !event.ctrlKey) modifierKeys.push('CommandOrControl');
 
-                // Get the actual key (not modifier)
                 let actualKey = event.key;
-
-                // Handle special keys
                 if (event.code.startsWith('Digit')) {
                     actualKey = event.code.replace('Digit', '');
                 } else if (event.code.startsWith('Key')) {
                     actualKey = event.code.replace('Key', '');
                 } else if (event.code.startsWith('F') && event.code.length <= 3) {
-                    actualKey = event.code; // F1, F2, etc.
+                    actualKey = event.code;
                 }
 
-                // Build final hotkey string
                 const hotkeyParts = [...modifierKeys, actualKey];
                 const fullHotkey = hotkeyParts.join('+');
 
-                // Validate hotkey (must have at least one modifier + one key)
                 if (modifierKeys.length > 0 && actualKey && actualKey !== 'Unidentified') {
                     document.getElementById('macro-hotkey').value = fullHotkey;
-                    document.getElementById('create-macro-btn').disabled = false;
-
+                    document.getElementById('macro-hotkey').classList.remove('listening');
+                    document.getElementById('save-macro-btn').disabled = false;
                     detectingHotkey = false;
-                    setTimeout(() => {
-                        document.getElementById('macro-hotkey').style.background = '#f0f0f0';
-                    }, 500);
                 } else {
-                    // Invalid combination, keep listening
                     document.getElementById('macro-hotkey').value = 'Invalid combination. Try again...';
                     setTimeout(() => {
                         document.getElementById('macro-hotkey').value = 'Listening... Press your key combination';
@@ -507,13 +898,31 @@
             }
         });
 
-        // Reset hotkey detection if user clicks elsewhere
+        // Modal event handlers
+        window.onclick = function(event) {
+            const modal = document.getElementById('macroModal');
+            if (event.target == modal) {
+                hideMacroModal();
+            }
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && !detectingHotkey) {
+                hideMacroModal();
+            }
+        });
+
+        // Listen for area selection completion
+        ipcRenderer.on('area-assigned', (event) => {
+            loadMacros();
+        });
+
         document.addEventListener('click', function(event) {
             if (detectingHotkey && event.target.id !== 'macro-hotkey') {
                 detectingHotkey = false;
                 document.getElementById('macro-hotkey').value = '';
-                document.getElementById('macro-hotkey').style.background = '#f0f0f0';
-                document.getElementById('create-macro-btn').disabled = true;
+                document.getElementById('macro-hotkey').classList.remove('listening');
+                document.getElementById('save-macro-btn').disabled = true;
             }
         });
     </script>
