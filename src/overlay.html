@@ -46,11 +46,30 @@
             z-index: 1000;
             pointer-events: none;
         }
+
+        .macro-info {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 122, 255, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 13px;
+            z-index: 1000;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <div class="instructions">
-        📷 Drag to select screenshot area • ESC to cancel • Enter area name after selection
+        📷 Click to select start point • ESC to cancel
+    </div>
+
+    <div class="macro-info" id="macro-info">
+        Setting area for: <span id="macro-name">Loading...</span>
     </div>
 
     <div class="coordinates" id="coordinates" style="display: none;">
@@ -62,21 +81,44 @@
         const Store = require('electron-store');
         const store = new Store();
 
-        let isSelecting = false;
+        let selectionState = 'waiting'; // 'waiting', 'selecting', 'selected'
         let startX, startY, endX, endY;
         let selectionBox;
         let coordinatesDiv = document.getElementById('coordinates');
+        let currentMacroId = null;
+
+        // Load current macro info
+        document.addEventListener('DOMContentLoaded', () => {
+            currentMacroId = store.get('currentMacroId');
+            if (currentMacroId) {
+                const macros = store.get('macros', []);
+                const macro = macros.find(m => m.id === currentMacroId);
+                if (macro) {
+                    document.getElementById('macro-name').textContent = macro.name;
+                }
+            }
+        });
 
         // Mouse events for area selection
-        document.addEventListener('mousedown', startSelection);
+        document.addEventListener('click', handleClick);
         document.addEventListener('mousemove', updateSelection);
-        document.addEventListener('mouseup', endSelection);
         document.addEventListener('keydown', handleKeydown);
 
-        function startSelection(e) {
-            if (isSelecting) return;
+        function handleClick(e) {
+            if (selectionState === 'waiting') {
+                // First click - set start point
+                startSelection(e);
+            } else if (selectionState === 'selecting') {
+                // Second click - set end point
+                endSelection(e);
+            } else if (selectionState === 'selected') {
+                // Click to start over
+                resetSelection();
+            }
+        }
 
-            isSelecting = true;
+        function startSelection(e) {
+            selectionState = 'selecting';
             startX = e.clientX;
             startY = e.clientY;
 
@@ -87,11 +129,15 @@
 
             // Show coordinates
             coordinatesDiv.style.display = 'block';
+
+            // Update instructions
+            document.querySelector('.instructions').innerHTML = '📷 Click to set end point • Enter to confirm • ESC to cancel';
+
             updateCoordinatesDisplay();
         }
 
         function updateSelection(e) {
-            if (!isSelecting || !selectionBox) return;
+            if (selectionState !== 'selecting' || !selectionBox) return;
 
             endX = e.clientX;
             endY = e.clientY;
@@ -113,7 +159,7 @@
         }
 
         function updateCoordinatesDisplay() {
-            if (!isSelecting) return;
+            if (selectionState === 'waiting') return;
 
             const left = Math.min(startX, endX || startX);
             const top = Math.min(startY, endY || startY);
@@ -124,11 +170,35 @@
         }
 
         function endSelection(e) {
-            if (!isSelecting) return;
+            if (selectionState !== 'selecting') return;
 
-            isSelecting = false;
+            selectionState = 'selected';
             endX = e.clientX;
             endY = e.clientY;
+
+            // Update selection box one final time
+            const left = Math.min(startX, endX);
+            const top = Math.min(startY, endY);
+            const width = Math.abs(endX - startX);
+            const height = Math.abs(endY - startY);
+
+            selectionBox.style.left = left + 'px';
+            selectionBox.style.top = top + 'px';
+            selectionBox.style.width = width + 'px';
+            selectionBox.style.height = height + 'px';
+
+            // Change selection box style to show it's finalized
+            selectionBox.style.borderColor = '#34C759';
+            selectionBox.style.background = 'rgba(52, 199, 89, 0.2)';
+
+            // Update instructions
+            document.querySelector('.instructions').innerHTML = '✅ Area selected • Enter to confirm • ESC to cancel • Click to start over';
+
+            updateCoordinatesDisplay();
+        }
+
+        function confirmSelection() {
+            if (selectionState !== 'selected' || !currentMacroId) return;
 
             const left = Math.min(startX, endX);
             const top = Math.min(startY, endY);
@@ -137,59 +207,64 @@
 
             // Minimum size check
             if (width < 10 || height < 10) {
-                cancelSelection();
+                alert('Selection area too small. Please select a larger area.');
+                resetSelection();
                 return;
             }
 
-            // Prompt for area name
-            const areaName = prompt('Enter a name for this screenshot area:', `Area ${Date.now()}`);
+            // Get screen position (account for multiple displays)
+            const { screen } = require('electron');
+            const display = screen.getDisplayNearestPoint({x: left, y: top});
 
-            if (areaName && areaName.trim()) {
-                // Get screen position (account for multiple displays)
-                const { screen } = require('electron');
-                const display = screen.getDisplayNearestPoint({x: left, y: top});
+            const area = {
+                x: left + display.bounds.x,
+                y: top + display.bounds.y,
+                width: width,
+                height: height
+            };
 
-                const area = {
-                    name: areaName.trim(),
-                    x: left + display.bounds.x,
-                    y: top + display.bounds.y,
-                    width: width,
-                    height: height,
-                    saveToFile: store.get('autoSave', false)
-                };
-
-                // Save area
-                const areas = store.get('areas', []);
-                area.id = Date.now().toString();
-                areas.push(area);
-                store.set('areas', areas);
+            // Update macro with area
+            const macros = store.get('macros', []);
+            const macroIndex = macros.findIndex(m => m.id === currentMacroId);
+            if (macroIndex !== -1) {
+                macros[macroIndex].area = area;
+                store.set('macros', macros);
 
                 // Notify main process
-                ipcRenderer.send('area-created', area);
+                ipcRenderer.send('macro-area-assigned', currentMacroId, area);
 
                 // Close overlay
                 window.close();
-            } else {
-                cancelSelection();
             }
         }
 
-        function cancelSelection() {
+        function resetSelection() {
             if (selectionBox) {
                 selectionBox.remove();
                 selectionBox = null;
             }
             coordinatesDiv.style.display = 'none';
-            isSelecting = false;
+            selectionState = 'waiting';
+
+            // Reset instructions
+            document.querySelector('.instructions').innerHTML = '📷 Click to select start point • ESC to cancel';
+        }
+
+        function cancelSelection() {
+            resetSelection();
+            // Close overlay
+            window.close();
         }
 
         function handleKeydown(e) {
             if (e.key === 'Escape') {
-                if (isSelecting) {
+                if (selectionState === 'waiting') {
                     cancelSelection();
                 } else {
-                    window.close();
+                    resetSelection();
                 }
+            } else if (e.key === 'Enter' && selectionState === 'selected') {
+                confirmSelection();
             }
         }
 

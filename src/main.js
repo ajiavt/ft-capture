@@ -8,8 +8,7 @@ class FTCapture {
     this.tray = null;
     this.settingsWindow = null;
     this.overlayWindows = [];
-    this.areas = this.store.get('areas', []);
-    this.hotkeys = this.store.get('hotkeys', {});
+    this.macros = this.store.get('macros', []);
     this.isSelecting = false;
 
     this.setupIPC();
@@ -20,14 +19,20 @@ class FTCapture {
       this.startAreaSelection();
     });
 
-    ipcMain.on('area-created', (event, area) => {
-      this.areas = this.store.get('areas', []);
+    ipcMain.on('macro-area-assigned', (event, macroId, area) => {
+      this.macros = this.store.get('macros', []);
       this.closeOverlays();
       this.isSelecting = false;
 
+      // Update tray menu to reflect new macro count
+      this.updateTrayMenu();
+
+      // Refresh hotkeys to include new macro
+      this.registerHotkeys();
+
       // Notify settings window if open
       if (this.settingsWindow) {
-        this.settingsWindow.webContents.send('area-selected', area);
+        this.settingsWindow.webContents.send('area-assigned');
       }
     });
 
@@ -37,23 +42,19 @@ class FTCapture {
     });
 
     ipcMain.on('refresh-hotkeys', () => {
-      this.hotkeys = this.store.get('hotkeys', {});
+      this.macros = this.store.get('macros', []);
       this.registerHotkeys();
+      this.updateTrayMenu();
     });
 
-    ipcMain.on('test-capture', (event, areaId) => {
-      this.captureArea(areaId);
+    ipcMain.on('test-capture', (event, macroId) => {
+      this.captureMacro(macroId);
     });
   }
 
   init() {
     this.createTray();
     this.registerHotkeys();
-
-    // Register global hotkey for area selection
-    globalShortcut.register('CommandOrControl+Shift+A', () => {
-      this.startAreaSelection();
-    });
   }
 
   createTray() {
@@ -62,22 +63,42 @@ class FTCapture {
     this.tray = new Tray(icon);
     this.tray.setTitle('📷');
 
+    this.updateTrayMenu();
+  }
+
+  updateTrayMenu() {
+    const macros = this.store.get('macros', []);
+    const macroMenuItems = macros.length > 0 ? [
+      {
+        type: 'separator'
+      },
+      {
+        label: 'Quick Capture:',
+        enabled: false
+      },
+      ...macros.filter(m => m.area).map(macro => ({
+        label: `${macro.name} (${macro.hotkey})`,
+        click: () => this.captureMacro(macro.id)
+      }))
+    ] : [];
+
     const contextMenu = Menu.buildFromTemplate([
       {
         label: 'Settings',
         click: () => this.openSettings()
       },
       {
-        label: 'Add New Area (Cmd+Shift+A)',
-        click: () => this.startAreaSelection()
-      },
-      {
         type: 'separator'
       },
       {
-        label: `Areas: ${this.areas.length}`,
+        label: `Macros: ${macros.length}`,
         enabled: false
       },
+      {
+        label: `Ready: ${macros.filter(m => m.area).length}`,
+        enabled: false
+      },
+      ...macroMenuItems,
       {
         type: 'separator'
       },
@@ -172,10 +193,17 @@ class FTCapture {
     }
   }
 
-  async captureArea(areaId) {
-    const area = this.areas.find(a => a.id === areaId);
-    if (!area) {
-      this.showNotification('Area not found!');
+  async captureMacro(macroId) {
+    const macros = this.store.get('macros', []);
+    const macro = macros.find(m => m.id === macroId);
+
+    if (!macro) {
+      this.showNotification('Macro not found!');
+      return;
+    }
+
+    if (!macro.area) {
+      this.showNotification(`Macro "${macro.name}" has no area assigned!`);
       return;
     }
 
@@ -185,7 +213,7 @@ class FTCapture {
 
       const sources = await desktopCapturer.getSources({
         types: ['screen'],
-        thumbnailSize: { width: 1920, height: 1080 } // High resolution
+        thumbnailSize: { width: 1920, height: 1080 }
       });
 
       if (sources.length === 0) {
@@ -193,22 +221,23 @@ class FTCapture {
       }
 
       // Get the appropriate screen source
-      const source = sources[0]; // For now, use primary display
+      const source = sources[0];
       const fullImage = source.thumbnail;
 
       // Crop the image to the specified area
-      const croppedImage = await this.cropImageAsync(fullImage, area);
+      const croppedImage = await this.cropImageAsync(fullImage, macro.area);
 
       // Copy to clipboard (main feature as requested)
       clipboard.writeImage(croppedImage);
 
-      // Optional: Save to file
-      if (area.saveToFile || this.store.get('autoSave', false)) {
-        this.saveImage(croppedImage, area);
+      // Auto-save to file (default behavior)
+      const autoSave = this.store.get('autoSave', true);
+      if (autoSave) {
+        this.saveImage(croppedImage, macro);
       }
 
       // Show notification
-      this.showNotification(`"${area.name}" captured to clipboard! 📋`);
+      this.showNotification(`"${macro.name}" captured! 📋 Ready to paste`);
 
     } catch (error) {
       console.error('Capture failed:', error);
@@ -219,7 +248,8 @@ class FTCapture {
   async cropImageAsync(image, area) {
     // Create a cropped version using nativeImage methods
     const originalSize = image.getSize();
-    const scale = originalSize.width / screen.getPrimaryDisplay().size.width;
+    const primaryDisplay = screen.getPrimaryDisplay();
+    const scale = originalSize.width / primaryDisplay.size.width;
 
     // Scale coordinates based on image resolution
     const scaledArea = {
@@ -228,6 +258,12 @@ class FTCapture {
       width: Math.round(area.width * scale),
       height: Math.round(area.height * scale)
     };
+
+    // Ensure coordinates are within bounds
+    scaledArea.x = Math.max(0, Math.min(scaledArea.x, originalSize.width - 1));
+    scaledArea.y = Math.max(0, Math.min(scaledArea.y, originalSize.height - 1));
+    scaledArea.width = Math.min(scaledArea.width, originalSize.width - scaledArea.x);
+    scaledArea.height = Math.min(scaledArea.height, originalSize.height - scaledArea.y);
 
     // Use nativeImage crop method
     return image.crop({
@@ -238,7 +274,7 @@ class FTCapture {
     });
   }
 
-  saveImage(image, area) {
+  saveImage(image, macro) {
     const fs = require('fs');
     const os = require('os');
 
@@ -250,8 +286,10 @@ class FTCapture {
       fs.mkdirSync(savePath, { recursive: true });
     }
 
+    // Use sequential numbering
     const timestamp = Date.now();
-    const filename = `ft-capture-${area.name.replace(/[^a-zA-Z0-9]/g, '_')}-${timestamp}.png`;
+    const safeName = macro.name.replace(/[^a-zA-Z0-9]/g, '_');
+    const filename = `ft-capture-${safeName}-${timestamp}.png`;
     const filepath = path.join(savePath, filename);
 
     try {
@@ -277,41 +315,22 @@ class FTCapture {
     // Clear existing hotkeys
     globalShortcut.unregisterAll();
 
-    // Register area capture hotkeys
-    Object.entries(this.hotkeys).forEach(([key, areaId]) => {
-      try {
-        globalShortcut.register(key, () => {
-          this.captureArea(areaId);
-        });
-        console.log(`Registered hotkey: ${key} for area ${areaId}`);
-      } catch (error) {
-        console.error(`Failed to register hotkey ${key}:`, error);
+    // Register macro hotkeys
+    const macros = this.store.get('macros', []);
+    macros.forEach(macro => {
+      if (macro.area) { // Only register if area is assigned
+        try {
+          globalShortcut.register(macro.hotkey, () => {
+            this.captureMacro(macro.id);
+          });
+          console.log(`Registered hotkey: ${macro.hotkey} for macro "${macro.name}"`);
+        } catch (error) {
+          console.error(`Failed to register hotkey ${macro.hotkey}:`, error);
+        }
       }
     });
 
-    // Re-register area selection hotkey
-    globalShortcut.register('CommandOrControl+Shift+A', () => {
-      this.startAreaSelection();
-    });
-
-    console.log(`Total hotkeys registered: ${Object.keys(this.hotkeys).length + 1}`);
-  }
-
-  addArea(area) {
-    area.id = Date.now().toString();
-    this.areas.push(area);
-    this.store.set('areas', this.areas);
-  }
-
-  removeArea(areaId) {
-    this.areas = this.areas.filter(a => a.id !== areaId);
-    this.store.set('areas', this.areas);
-  }
-
-  setHotkey(areaId, hotkey) {
-    this.hotkeys[hotkey] = areaId;
-    this.store.set('hotkeys', this.hotkeys);
-    this.registerHotkeys();
+    console.log(`Total active macros: ${macros.filter(m => m.area).length}/${macros.length}`);
   }
 }
 

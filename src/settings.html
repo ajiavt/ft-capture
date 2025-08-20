@@ -36,7 +36,7 @@
             border-bottom: 2px solid #007AFF;
             padding-bottom: 10px;
         }
-        .area-item {
+        .macro-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -46,16 +46,31 @@
             margin-bottom: 10px;
             background: #fafafa;
         }
-        .area-info {
+        .macro-info {
             flex: 1;
         }
-        .area-name {
+        .macro-name {
             font-weight: bold;
             margin-bottom: 5px;
         }
-        .area-coords {
+        .macro-hotkey {
             font-size: 12px;
             color: #666;
+            background: #e8e8e8;
+            padding: 2px 6px;
+            border-radius: 3px;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+        .macro-area {
+            font-size: 12px;
+            color: #666;
+        }
+        .area-assigned {
+            color: #34C759;
+        }
+        .area-pending {
+            color: #FF9500;
         }
         .hotkey-input {
             width: 120px;
@@ -75,21 +90,25 @@
             background: #007AFF;
             color: white;
         }
-        .btn-danger {
-            background: #FF3B30;
-            color: white;
-        }
         .btn-success {
             background: #34C759;
+            color: white;
+        }
+        .btn-warning {
+            background: #FF9500;
+            color: white;
+        }
+        .btn-danger {
+            background: #FF3B30;
             color: white;
         }
         .btn:hover {
             opacity: 0.8;
         }
-        .add-area-btn {
+        .add-macro-btn {
             width: 100%;
             padding: 15px;
-            background: #34C759;
+            background: #007AFF;
             color: white;
             border: none;
             border-radius: 6px;
@@ -121,9 +140,42 @@
             margin-top: 0;
             color: #1976D2;
         }
-        .instructions ul {
+        .instructions ol {
             margin: 10px 0;
             padding-left: 20px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 400px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
         }
     </style>
 </head>
@@ -135,38 +187,60 @@
 
         <div class="content">
             <div class="instructions">
-                <h4>Quick Start Instructions:</h4>
-                <ul>
-                    <li><strong>Cmd/Ctrl + Shift + A</strong>: Start area selection</li>
-                    <li>Click "Add New Area" or use hotkey to define screenshot areas</li>
-                    <li>Assign custom hotkeys to each area</li>
-                    <li>Screenshots are automatically copied to clipboard</li>
-                </ul>
+                <h4>How to Use FT Capture:</h4>
+                <ol>
+                    <li><strong>Add New Macro</strong> - Create a macro with name and hotkey</li>
+                    <li><strong>Assign Area</strong> - Click "Set Area" to visually select screenshot region</li>
+                    <li><strong>Use Macro</strong> - Press your hotkey to capture and copy to clipboard</li>
+                    <li><strong>Paste</strong> - Use Ctrl+V in Word or any application</li>
+                </ol>
             </div>
 
             <div class="section">
-                <h3>Screenshot Areas</h3>
-                <button class="add-area-btn" onclick="startAreaSelection()">
-                    📷 Add New Area (Cmd/Ctrl + Shift + A)
+                <h3>Macros & Areas</h3>
+                <button class="add-macro-btn" onclick="showAddMacroModal()">
+                    ➕ Add New Macro
                 </button>
-                <div id="areas-list">
-                    <!-- Areas will be populated here -->
+                <div id="macros-list">
+                    <!-- Macros will be populated here -->
                 </div>
             </div>
 
             <div class="section">
                 <h3>General Settings</h3>
                 <div class="settings-item">
-                    <label>Save Path (optional):</label>
+                    <label>Save Path (images saved to Desktop by default):</label>
                     <div style="display: flex; flex: 1; margin-left: 20px;">
                         <input type="text" id="save-path" class="save-path-input" placeholder="Default: Desktop">
                         <button class="btn btn-primary" onclick="browseSavePath()">Browse</button>
                     </div>
                 </div>
                 <div class="settings-item">
-                    <label>Save to file (in addition to clipboard):</label>
+                    <label>Auto-save to file (in addition to clipboard):</label>
                     <input type="checkbox" id="auto-save" onchange="toggleAutoSave()">
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Macro Modal -->
+    <div id="addMacroModal" class="modal">
+        <div class="modal-content">
+            <h3>Add New Macro</h3>
+            <div class="form-group">
+                <label for="macro-name">Macro Name:</label>
+                <input type="text" id="macro-name" placeholder="e.g. Top Left Area">
+            </div>
+            <div class="form-group">
+                <label for="macro-hotkey">Hotkey (click here and press your key combination):</label>
+                <input type="text" id="macro-hotkey" placeholder="Click here and press keys..." readonly style="cursor: pointer; background: #f0f0f0;">
+                <small style="color: #666; display: block; margin-top: 5px;">
+                    Examples: Cmd+1, Ctrl+Shift+A, Alt+F1, etc.
+                </small>
+            </div>
+            <div style="text-align: right; margin-top: 20px;">
+                <button class="btn btn-danger" onclick="hideAddMacroModal()">Cancel</button>
+                <button class="btn btn-success" onclick="addMacro()" id="create-macro-btn" disabled>Create Macro</button>
             </div>
         </div>
     </div>
@@ -178,35 +252,38 @@
 
         // Load settings on startup
         document.addEventListener('DOMContentLoaded', () => {
-            loadAreas();
+            loadMacros();
             loadSettings();
         });
 
-        function loadAreas() {
-            const areas = store.get('areas', []);
-            const areasList = document.getElementById('areas-list');
+        function loadMacros() {
+            const macros = store.get('macros', []);
+            const macrosList = document.getElementById('macros-list');
 
-            if (areas.length === 0) {
-                areasList.innerHTML = '<p style="text-align: center; color: #666;">No areas defined yet. Click "Add New Area" to get started.</p>';
+            if (macros.length === 0) {
+                macrosList.innerHTML = '<p style="text-align: center; color: #666;">No macros created yet. Click "Add New Macro" to get started.</p>';
                 return;
             }
 
-            areasList.innerHTML = areas.map(area => `
-                <div class="area-item">
-                    <div class="area-info">
-                        <div class="area-name">${area.name}</div>
-                        <div class="area-coords">
-                            Position: ${area.x}, ${area.y} | Size: ${area.width} × ${area.height}
+            macrosList.innerHTML = macros.map(macro => `
+                <div class="macro-item">
+                    <div class="macro-info">
+                        <div class="macro-name">${macro.name}</div>
+                        <div class="macro-hotkey">${macro.hotkey}</div>
+                        <div class="macro-area ${macro.area ? 'area-assigned' : 'area-pending'}">
+                            ${macro.area ?
+                                `Area: ${macro.area.x}, ${macro.area.y} (${macro.area.width} × ${macro.area.height})` :
+                                'No area assigned - Click "Set Area" to configure'
+                            }
                         </div>
                     </div>
                     <div style="display: flex; align-items: center;">
-                        <label>Hotkey:</label>
-                        <input type="text" class="hotkey-input"
-                               value="${getHotkeyForArea(area.id)}"
-                               onchange="setAreaHotkey('${area.id}', this.value)"
-                               placeholder="e.g. Ctrl+1">
-                        <button class="btn btn-primary" onclick="testCapture('${area.id}')">Test</button>
-                        <button class="btn btn-danger" onclick="removeArea('${area.id}')">Delete</button>
+                        ${macro.area ?
+                            `<button class="btn btn-warning" onclick="setMacroArea('${macro.id}')">Change Area</button>` :
+                            `<button class="btn btn-success" onclick="setMacroArea('${macro.id}')">Set Area</button>`
+                        }
+                        <button class="btn btn-primary" onclick="testMacro('${macro.id}')">Test</button>
+                        <button class="btn btn-danger" onclick="removeMacro('${macro.id}')">Delete</button>
                     </div>
                 </div>
             `).join('');
@@ -214,65 +291,86 @@
 
         function loadSettings() {
             const savePath = store.get('savePath', '');
-            const autoSave = store.get('autoSave', false);
+            const autoSave = store.get('autoSave', true); // Default to true for auto-save
 
             document.getElementById('save-path').value = savePath;
             document.getElementById('auto-save').checked = autoSave;
         }
 
-        function getHotkeyForArea(areaId) {
-            const hotkeys = store.get('hotkeys', {});
-            const hotkey = Object.keys(hotkeys).find(key => hotkeys[key] === areaId);
-            return hotkey || '';
+        function showAddMacroModal() {
+            document.getElementById('addMacroModal').style.display = 'block';
+            document.getElementById('macro-name').focus();
         }
 
-        function setAreaHotkey(areaId, hotkey) {
-            if (!hotkey.trim()) return;
+        function hideAddMacroModal() {
+            document.getElementById('addMacroModal').style.display = 'none';
+            document.getElementById('macro-name').value = '';
+            document.getElementById('macro-hotkey').value = '';
+        }
 
-            const hotkeys = store.get('hotkeys', {});
+        function addMacro() {
+            const name = document.getElementById('macro-name').value.trim();
+            const hotkey = document.getElementById('macro-hotkey').value.trim();
 
-            // Remove old hotkey for this area
-            Object.keys(hotkeys).forEach(key => {
-                if (hotkeys[key] === areaId) {
-                    delete hotkeys[key];
-                }
-            });
+            if (!name || !hotkey) {
+                alert('Please fill in both name and hotkey');
+                return;
+            }
 
-            // Set new hotkey
-            hotkeys[hotkey] = areaId;
-            store.set('hotkeys', hotkeys);
+            // Check if hotkey already exists
+            const macros = store.get('macros', []);
+            if (macros.some(m => m.hotkey === hotkey)) {
+                alert('Hotkey already exists! Please choose a different one.');
+                return;
+            }
 
-            // Notify main process to re-register hotkeys
+            const macro = {
+                id: Date.now().toString(),
+                name: name,
+                hotkey: hotkey,
+                area: null
+            };
+
+            macros.push(macro);
+            store.set('macros', macros);
+
+            hideAddMacroModal();
+            loadMacros();
+
+            // Notify main process to register hotkey
             ipcRenderer.send('refresh-hotkeys');
         }
 
-        function removeArea(areaId) {
-            if (confirm('Are you sure you want to delete this area?')) {
-                let areas = store.get('areas', []);
-                areas = areas.filter(a => a.id !== areaId);
-                store.set('areas', areas);
+        function setMacroArea(macroId) {
+            // Store which macro we're setting area for
+            store.set('currentMacroId', macroId);
 
-                // Remove associated hotkey
-                const hotkeys = store.get('hotkeys', {});
-                Object.keys(hotkeys).forEach(key => {
-                    if (hotkeys[key] === areaId) {
-                        delete hotkeys[key];
-                    }
-                });
-                store.set('hotkeys', hotkeys);
-
-                loadAreas();
-                ipcRenderer.send('refresh-hotkeys');
-            }
-        }
-
-        function testCapture(areaId) {
-            ipcRenderer.send('test-capture', areaId);
-        }
-
-        function startAreaSelection() {
+            // Start area selection
             ipcRenderer.send('start-area-selection');
             window.close(); // Close settings during selection
+        }
+
+        function testMacro(macroId) {
+            const macros = store.get('macros', []);
+            const macro = macros.find(m => m.id === macroId);
+
+            if (!macro || !macro.area) {
+                alert('Please set an area for this macro first');
+                return;
+            }
+
+            ipcRenderer.send('test-capture', macroId);
+        }
+
+        function removeMacro(macroId) {
+            if (confirm('Are you sure you want to delete this macro?')) {
+                let macros = store.get('macros', []);
+                macros = macros.filter(m => m.id !== macroId);
+                store.set('macros', macros);
+
+                loadMacros();
+                ipcRenderer.send('refresh-hotkeys');
+            }
         }
 
         function browseSavePath() {
@@ -293,10 +391,97 @@
         }
 
         // Listen for area selection completion
-        ipcRenderer.on('area-selected', (event, area) => {
-            loadAreas();
+        ipcRenderer.on('area-assigned', (event) => {
+            loadMacros();
+        });
+
+        // Modal click outside to close
+        window.onclick = function(event) {
+            const modal = document.getElementById('addMacroModal');
+            if (event.target == modal) {
+                hideAddMacroModal();
+            }
+        }
+
+        // ESC key to close modal
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                hideAddMacroModal();
+            }
+        });
+
+        // Hotkey detection
+        let detectingHotkey = false;
+
+        document.getElementById('macro-hotkey').addEventListener('click', function() {
+            detectingHotkey = true;
+            this.value = 'Listening... Press your key combination';
+            this.style.background = '#e0f7fa';
+            document.getElementById('create-macro-btn').disabled = true;
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (detectingHotkey) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                // Skip if it's just a modifier key alone
+                if (['Control', 'Shift', 'Alt', 'Meta', 'Cmd', 'Command'].includes(event.key)) {
+                    return;
+                }
+
+                const modifierKeys = [];
+
+                // Build modifier keys array
+                if (event.ctrlKey) modifierKeys.push('CommandOrControl');
+                if (event.shiftKey) modifierKeys.push('Shift');
+                if (event.altKey) modifierKeys.push('Alt');
+                if (event.metaKey && !event.ctrlKey) modifierKeys.push('CommandOrControl');
+
+                // Get the actual key (not modifier)
+                let actualKey = event.key;
+
+                // Handle special keys
+                if (event.code.startsWith('Digit')) {
+                    actualKey = event.code.replace('Digit', '');
+                } else if (event.code.startsWith('Key')) {
+                    actualKey = event.code.replace('Key', '');
+                } else if (event.code.startsWith('F') && event.code.length <= 3) {
+                    actualKey = event.code; // F1, F2, etc.
+                }
+
+                // Build final hotkey string
+                const hotkeyParts = [...modifierKeys, actualKey];
+                const fullHotkey = hotkeyParts.join('+');
+
+                // Validate hotkey (must have at least one modifier + one key)
+                if (modifierKeys.length > 0 && actualKey && actualKey !== 'Unidentified') {
+                    document.getElementById('macro-hotkey').value = fullHotkey;
+                    document.getElementById('create-macro-btn').disabled = false;
+
+                    detectingHotkey = false;
+                    setTimeout(() => {
+                        document.getElementById('macro-hotkey').style.background = '#f0f0f0';
+                    }, 500);
+                } else {
+                    // Invalid combination, keep listening
+                    document.getElementById('macro-hotkey').value = 'Invalid combination. Try again...';
+                    setTimeout(() => {
+                        document.getElementById('macro-hotkey').value = 'Listening... Press your key combination';
+                    }, 1000);
+                }
+            }
+        });
+
+        // Reset hotkey detection if user clicks elsewhere
+        document.addEventListener('click', function(event) {
+            if (detectingHotkey && event.target.id !== 'macro-hotkey') {
+                detectingHotkey = false;
+                document.getElementById('macro-hotkey').value = '';
+                document.getElementById('macro-hotkey').style.background = '#f0f0f0';
+                document.getElementById('create-macro-btn').disabled = true;
+            }
         });
     </script>
 </body>
 </html>
-
