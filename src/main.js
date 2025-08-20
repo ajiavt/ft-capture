@@ -418,7 +418,7 @@ class FTCapture {
               0 0 0 1px rgba(255, 255, 255, 0.8),
               0 0 15px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.6),
               inset 0 0 0 1px rgba(255, 255, 255, 0.4);
-            animation: areaHighlight 1.3s ease-out;
+            animation: areaHighlight 1.0s ease-out;
             pointer-events: none;
           }
           .area-indicator::before {
@@ -430,7 +430,7 @@ class FTCapture {
             bottom: -6px;
             border: 2px solid rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.3);
             border-radius: 8px;
-            animation: outerGlow 1.3s ease-out;
+            animation: outerGlow 1.0s ease-out;
           }
           @keyframes areaHighlight {
             0% { 
@@ -483,10 +483,10 @@ class FTCapture {
     indicatorWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(indicatorHTML)}`);
     indicatorWindow.show();
 
-    // Close indicator window after animation
+    // Close indicator window after exactly 1 second
     setTimeout(() => {
       indicatorWindow.close();
-    }, 1300);
+    }, 1000);
   }
 
   showToastNotification(macroName) {
@@ -613,7 +613,7 @@ class FTCapture {
             justify-content: center;
             margin-left: 12px;
             flex-shrink: 0;
-            animation: checkPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.2s both;
+            animation: checkPop 1.0s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0s both;
           }
           .check-mark::after {
             content: '✓';
@@ -624,12 +624,23 @@ class FTCapture {
           @keyframes checkPop {
             0% {
               transform: scale(0);
+              opacity: 0;
             }
-            80% {
+            15% {
               transform: scale(1.1);
+              opacity: 1;
+            }
+            25% {
+              transform: scale(1);
+              opacity: 1;
+            }
+            85% {
+              transform: scale(1);
+              opacity: 1;
             }
             100% {
-              transform: scale(1);
+              transform: scale(0.8);
+              opacity: 0;
             }
           }
         </style>
@@ -639,8 +650,8 @@ class FTCapture {
           <div class="icon">📸</div>
         </div>
         <div class="content">
-          <div class="title">Screenshot Captured</div>
-          <div class="subtitle">"${macroName}" • Ready to paste</div>
+          <div class="title">${macroName} Captured</div>
+          <div class="subtitle">Screenshot area ready to paste</div>
         </div>
         <div class="check-mark"></div>
       </body>
@@ -650,10 +661,10 @@ class FTCapture {
     toastWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(toastHTML)}`);
     toastWindow.show();
 
-    // Close toast window after animation
+    // Auto-close toast after 1 seconds
     setTimeout(() => {
       toastWindow.close();
-    }, 2500);
+    }, 1000);
   }
 
   registerHotkeys() {
@@ -700,3 +711,4 @@ app.on('activate', () => {
     ftCapture.openSettings();
   }
 });
+
