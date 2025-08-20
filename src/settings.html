@@ -32,6 +32,8 @@
             text-align: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             flex-shrink: 0;
+            -webkit-app-region: drag;
+            cursor: move;
         }
 
         .header-content {
@@ -39,6 +41,7 @@
             align-items: center;
             justify-content: center;
             gap: 15px;
+            pointer-events: none;
         }
 
         .app-icon {
@@ -52,6 +55,7 @@
             font-size: 24px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             color: #00b894;
+            pointer-events: none;
         }
 
         .app-title {
