@@ -26,7 +26,7 @@
         .header {
             background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
             color: white;
-            padding: 20px;
+            padding: 15px;
             text-align: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             flex-shrink: 0;
@@ -74,7 +74,7 @@
             background: rgba(255,255,255,0.95);
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(0,0,0,0.1);
-            padding: 30px;
+            padding: 20px;
             overflow-y: auto;
             flex-shrink: 0;
         }
@@ -83,33 +83,34 @@
             width: 50%;
             background: rgba(255,255,255,0.9);
             backdrop-filter: blur(20px);
-            padding: 40px;
+            padding: 20px;
             overflow-y: auto;
         }
 
         .section {
-            margin-bottom: 35px;
+            margin-bottom: 20px;
         }
 
         .section h3 {
             color: #2E7D32;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 600;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .macro-item {
             display: flex;
             flex-direction: column;
-            padding: 20px;
+            padding: 15px;
             border: 1px solid #e0e0e0;
-            border-radius: 16px;
-            margin-bottom: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            margin-top: 2px;
             background: white;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
             transition: all 0.3s ease;
         }
 
@@ -123,16 +124,16 @@
             flex: 1;
             display: flex;
             align-items: center;
-            gap: 16px;
-            margin-bottom: 15px;
+            gap: 12px;
+            margin-bottom: 10px;
         }
 
         .macro-color-indicator {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            border: 3px solid rgba(255,255,255,0.8);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 2px solid rgba(255,255,255,0.8);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             flex-shrink: 0;
         }
 
@@ -176,23 +177,25 @@
 
         .macro-actions {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             justify-content: flex-start;
             flex-wrap: wrap;
         }
 
         .btn {
-            padding: 10px 16px;
+            padding: 8px 12px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             transition: all 0.2s ease;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
+            min-width: 80px;
+            justify-content: center;
         }
 
         .btn-primary {
@@ -260,41 +263,36 @@
 
         .add-macro-btn {
             width: 100%;
-            padding: 20px;
+            padding: 15px;
             background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
             color: white;
             border: none;
-            border-radius: 16px;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
-        }
-
-        .add-macro-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 24px rgba(76, 175, 80, 0.4);
+            gap: 8px;
+            box-shadow: 0 3px 12px rgba(76, 175, 80, 0.3);
         }
 
         .settings-card {
             background: white;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            margin-bottom: 30px;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
         }
 
         .settings-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 20px 0;
+            padding: 15px 0;
             border-bottom: 1px solid #f0f0f0;
         }
 
@@ -310,10 +308,10 @@
 
         .save-path-input {
             flex: 1;
-            padding: 12px 16px;
+            padding: 10px 12px;
             border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            margin-right: 12px;
+            border-radius: 6px;
+            margin-right: 10px;
             font-size: 14px;
             transition: border-color 0.2s ease;
         }
@@ -506,26 +504,13 @@
                             <span class="settings-label">Save Path:</span>
                             <div style="display: flex; flex: 1; margin-left: 20px;">
                                 <input type="text" id="save-path" class="save-path-input" placeholder="Default: Desktop">
-                                <button class="btn btn-secondary" onclick="browseSavePath()">Browse</button>
+                                <button class="btn btn-secondary" onclick="browseSavePath()">📁 Browse</button>
                             </div>
                         </div>
                         <div class="settings-item">
                             <span class="settings-label">Auto-save to file:</span>
                             <input type="checkbox" id="auto-save" onchange="toggleAutoSave()">
                         </div>
-                    </div>
-                </div>
-
-                <div class="section">
-                    <h3>ℹ️ How to Use</h3>
-                    <div class="settings-card">
-                        <ol style="padding-left: 20px; line-height: 2; font-size: 15px;">
-                            <li><strong>Add New Macro</strong> - Create a macro with name, hotkey, and color theme</li>
-                            <li><strong>Assign Area</strong> - Click "Set Area" to visually select screenshot region</li>
-                            <li><strong>Use Macro</strong> - Press your hotkey to capture and copy to clipboard</li>
-                            <li><strong>Paste</strong> - Use Ctrl+V in Word or any application</li>
-                            <li><strong>Edit Macro</strong> - Click edit button to change name, hotkey, or color</li>
-                        </ol>
                     </div>
                 </div>
 
@@ -542,6 +527,19 @@
                                 <div style="font-size: 14px; color: #666; margin-top: 8px;">Ready to Use</div>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>ℹ️ How to Use</h3>
+                    <div class="settings-card">
+                        <ol style="padding-left: 20px; line-height: 2; font-size: 15px;">
+                            <li><strong>Add New Macro</strong> - Create a macro with name, hotkey, and color theme</li>
+                            <li><strong>Assign Area</strong> - Click "Set Area" to visually select screenshot region</li>
+                            <li><strong>Use Macro</strong> - Press your hotkey to capture and copy to clipboard</li>
+                            <li><strong>Paste</strong> - Use Ctrl+V in Word or any application</li>
+                            <li><strong>Edit Macro</strong> - Click edit button to change name, hotkey, or color</li>
+                        </ol>
                     </div>
                 </div>
 
@@ -579,7 +577,7 @@
 
             <div class="sidebar">
                 <button class="add-macro-btn" onclick="showAddMacroModal()">
-                    Add New Macro
+                    ➕ Add New Macro
                 </button>
 
                 <div class="section">
@@ -678,13 +676,13 @@
                         </div>
                     </div>
                     <div class="macro-actions">
-                        <button class="btn btn-ghost" onclick="editMacro('${macro.id}')">Edit</button>
+                        <button class="btn btn-ghost" onclick="editMacro('${macro.id}')">✏️ Edit</button>
                         ${macro.area ?
-                            `<button class="btn btn-warning" onclick="setMacroArea('${macro.id}')">Change Area</button>` :
-                            `<button class="btn btn-primary" onclick="setMacroArea('${macro.id}')">Set Area</button>`
+                            `<button class="btn btn-warning" onclick="setMacroArea('${macro.id}')">🔄 Change Area</button>` :
+                            `<button class="btn btn-primary" onclick="setMacroArea('${macro.id}')">📍 Set Area</button>`
                         }
-                        <button class="btn btn-secondary" onclick="testMacro('${macro.id}')">Test</button>
-                        <button class="btn btn-danger" onclick="removeMacro('${macro.id}')">Delete</button>
+                        <button class="btn btn-secondary" onclick="testMacro('${macro.id}')">🧪 Test</button>
+                        <button class="btn btn-danger" onclick="removeMacro('${macro.id}')">🗑️ Delete</button>
                     </div>
                 </div>
             `).join('');
