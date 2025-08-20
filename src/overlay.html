@@ -61,6 +61,58 @@
             z-index: 1000;
             text-align: center;
         }
+
+        .action-buttons {
+            position: fixed;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .action-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            pointer-events: auto;
+        }
+
+        .confirm-btn {
+            background: #34C759;
+            color: white;
+        }
+
+        .confirm-btn:hover {
+            background: #2EA043;
+            transform: translateY(-1px);
+        }
+
+        .cancel-btn {
+            background: #FF3B30;
+            color: white;
+        }
+
+        .cancel-btn:hover {
+            background: #D32F2F;
+            transform: translateY(-1px);
+        }
+
+        .restart-btn {
+            background: #FF9500;
+            color: white;
+        }
+
+        .restart-btn:hover {
+            background: #E8820E;
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 <body>
@@ -76,6 +128,12 @@
         X: 0, Y: 0, W: 0, H: 0
     </div>
 
+    <div class="action-buttons" id="action-buttons">
+        <button class="action-btn confirm-btn" onclick="confirmSelection()">✅ Confirm Area</button>
+        <button class="action-btn restart-btn" onclick="resetSelection()">🔄 Start Over</button>
+        <button class="action-btn cancel-btn" onclick="cancelSelection()">❌ Cancel</button>
+    </div>
+
     <script>
         const { ipcRenderer } = require('electron');
         const Store = require('electron-store');
@@ -85,6 +143,7 @@
         let startX, startY, endX, endY;
         let selectionBox;
         let coordinatesDiv = document.getElementById('coordinates');
+        let actionButtons = document.getElementById('action-buttons');
         let currentMacroId = null;
 
         // Load current macro info
@@ -105,15 +164,17 @@
         document.addEventListener('keydown', handleKeydown);
 
         function handleClick(e) {
+            // Skip if clicking on buttons
+            if (e.target.classList.contains('action-btn')) {
+                return;
+            }
+
             if (selectionState === 'waiting') {
                 // First click - set start point
                 startSelection(e);
             } else if (selectionState === 'selecting') {
                 // Second click - set end point
                 endSelection(e);
-            } else if (selectionState === 'selected') {
-                // Click to start over
-                resetSelection();
             }
         }
 
@@ -131,7 +192,7 @@
             coordinatesDiv.style.display = 'block';
 
             // Update instructions
-            document.querySelector('.instructions').innerHTML = '📷 Click to set end point • Enter to confirm • ESC to cancel';
+            document.querySelector('.instructions').innerHTML = '📷 Click to set end point • ESC to cancel';
 
             updateCoordinatesDisplay();
         }
@@ -191,14 +252,17 @@
             selectionBox.style.borderColor = '#34C759';
             selectionBox.style.background = 'rgba(52, 199, 89, 0.2)';
 
-            // Update instructions
-            document.querySelector('.instructions').innerHTML = '✅ Area selected • Enter to confirm • ESC to cancel • Click to start over';
+            // Update instructions and show action buttons
+            document.querySelector('.instructions').innerHTML = '✅ Area selected • Choose action below';
+            actionButtons.style.display = 'flex';
 
             updateCoordinatesDisplay();
         }
 
         function confirmSelection() {
-            if (selectionState !== 'selected' || !currentMacroId) return;
+            if (selectionState !== 'selected' || !currentMacroId) {
+                return;
+            }
 
             const left = Math.min(startX, endX);
             const top = Math.min(startY, endY);
@@ -226,6 +290,7 @@
             // Update macro with area
             const macros = store.get('macros', []);
             const macroIndex = macros.findIndex(m => m.id === currentMacroId);
+
             if (macroIndex !== -1) {
                 macros[macroIndex].area = area;
                 store.set('macros', macros);
@@ -244,6 +309,7 @@
                 selectionBox = null;
             }
             coordinatesDiv.style.display = 'none';
+            actionButtons.style.display = 'none';
             selectionState = 'waiting';
 
             // Reset instructions
@@ -263,8 +329,6 @@
                 } else {
                     resetSelection();
                 }
-            } else if (e.key === 'Enter' && selectionState === 'selected') {
-                confirmSelection();
             }
         }
 
