@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Area Selection</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: rgba(0, 0, 0, 0.3);
+            cursor: crosshair;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .selection-box {
+            position: absolute;
+            border: 2px dashed #007AFF;
+            background: rgba(0, 122, 255, 0.1);
+            pointer-events: none;
+        }
+
+        .instructions {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            z-index: 1000;
+            text-align: center;
+        }
+
+        .coordinates {
+            position: fixed;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 1000;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="instructions">
+        📷 Drag to select screenshot area • ESC to cancel • Enter area name after selection
+    </div>
+
+    <div class="coordinates" id="coordinates" style="display: none;">
+        X: 0, Y: 0, W: 0, H: 0
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        const Store = require('electron-store');
+        const store = new Store();
+
+        let isSelecting = false;
+        let startX, startY, endX, endY;
+        let selectionBox;
+        let coordinatesDiv = document.getElementById('coordinates');
+
+        // Mouse events for area selection
+        document.addEventListener('mousedown', startSelection);
+        document.addEventListener('mousemove', updateSelection);
+        document.addEventListener('mouseup', endSelection);
+        document.addEventListener('keydown', handleKeydown);
+
+        function startSelection(e) {
+            if (isSelecting) return;
+
+            isSelecting = true;
+            startX = e.clientX;
+            startY = e.clientY;
+
+            // Create selection box
+            selectionBox = document.createElement('div');
+            selectionBox.className = 'selection-box';
+            document.body.appendChild(selectionBox);
+
+            // Show coordinates
+            coordinatesDiv.style.display = 'block';
+            updateCoordinatesDisplay();
+        }
+
+        function updateSelection(e) {
+            if (!isSelecting || !selectionBox) return;
+
+            endX = e.clientX;
+            endY = e.clientY;
+
+            const left = Math.min(startX, endX);
+            const top = Math.min(startY, endY);
+            const width = Math.abs(endX - startX);
+            const height = Math.abs(endY - startY);
+
+            selectionBox.style.left = left + 'px';
+            selectionBox.style.top = top + 'px';
+            selectionBox.style.width = width + 'px';
+            selectionBox.style.height = height + 'px';
+
+            // Update coordinates display
+            coordinatesDiv.style.left = (e.clientX + 10) + 'px';
+            coordinatesDiv.style.top = (e.clientY - 30) + 'px';
+            updateCoordinatesDisplay();
+        }
+
+        function updateCoordinatesDisplay() {
+            if (!isSelecting) return;
+
+            const left = Math.min(startX, endX || startX);
+            const top = Math.min(startY, endY || startY);
+            const width = Math.abs((endX || startX) - startX);
+            const height = Math.abs((endY || startY) - startY);
+
+            coordinatesDiv.textContent = `X: ${left}, Y: ${top}, W: ${width}, H: ${height}`;
+        }
+
+        function endSelection(e) {
+            if (!isSelecting) return;
+
+            isSelecting = false;
+            endX = e.clientX;
+            endY = e.clientY;
+
+            const left = Math.min(startX, endX);
+            const top = Math.min(startY, endY);
+            const width = Math.abs(endX - startX);
+            const height = Math.abs(endY - startY);
+
+            // Minimum size check
+            if (width < 10 || height < 10) {
+                cancelSelection();
+                return;
+            }
+
+            // Prompt for area name
+            const areaName = prompt('Enter a name for this screenshot area:', `Area ${Date.now()}`);
+
+            if (areaName && areaName.trim()) {
+                // Get screen position (account for multiple displays)
+                const { screen } = require('electron');
+                const display = screen.getDisplayNearestPoint({x: left, y: top});
+
+                const area = {
+                    name: areaName.trim(),
+                    x: left + display.bounds.x,
+                    y: top + display.bounds.y,
+                    width: width,
+                    height: height,
+                    saveToFile: store.get('autoSave', false)
+                };
+
+                // Save area
+                const areas = store.get('areas', []);
+                area.id = Date.now().toString();
+                areas.push(area);
+                store.set('areas', areas);
+
+                // Notify main process
+                ipcRenderer.send('area-created', area);
+
+                // Close overlay
+                window.close();
+            } else {
+                cancelSelection();
+            }
+        }
+
+        function cancelSelection() {
+            if (selectionBox) {
+                selectionBox.remove();
+                selectionBox = null;
+            }
+            coordinatesDiv.style.display = 'none';
+            isSelecting = false;
+        }
+
+        function handleKeydown(e) {
+            if (e.key === 'Escape') {
+                if (isSelecting) {
+                    cancelSelection();
+                } else {
+                    window.close();
+                }
+            }
+        }
+
+        // Auto-focus for keyboard events
+        window.focus();
+
+        // Handle window close
+        window.addEventListener('beforeunload', () => {
+            ipcRenderer.send('area-selection-cancelled');
+        });
+    </script>
+</body>
+</html>

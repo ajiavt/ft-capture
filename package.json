@@ -1,0 +1,43 @@
+{
+  "name": "ft-capture",
+  "version": "1.0.0",
+  "description": "Screenshot capture app with customizable hotkeys and areas",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "build:mac": "electron-builder --mac",
+    "build:win": "electron-builder --win"
+  },
+  "keywords": ["screenshot", "capture", "hotkey", "electron"],
+  "author": "ajiavt",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "dependencies": {
+    "electron-store": "^8.1.0",
+    "clipboardy": "^3.0.0"
+  },
+  "build": {
+    "appId": "com.ajiavt.ft-capture",
+    "productName": "FT Capture",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.utilities",
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    }
+  }
+}
+
