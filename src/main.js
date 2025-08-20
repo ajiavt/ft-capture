@@ -338,13 +338,156 @@ class FTCapture {
 
   // Add new method for screenshot success notification
   showSuccessNotification(macroName) {
-    // 1. Toast notification only (removed flash effect)
+    // 1. Show screenshot area indicator
+    this.showScreenshotAreaIndicator(macroName);
+
+    // 2. Toast notification
     this.showToastNotification(macroName);
 
-    // 2. System notification
+    // 3. System notification
     this.showNotification(`"${macroName}" captured! 📋 Ready to paste`);
   }
 
+  showScreenshotAreaIndicator(macroName) {
+    const macros = this.store.get('macros', []);
+    const macro = macros.find(m => m.name === macroName);
+
+    if (!macro || !macro.area) return;
+
+    const primaryDisplay = screen.getPrimaryDisplay();
+    const { x, y, width, height } = macro.area;
+
+    const indicatorWindow = new BrowserWindow({
+      x: x - 2,
+      y: y - 2,
+      width: width + 4,
+      height: height + 4,
+      frame: false,
+      alwaysOnTop: true,
+      transparent: true,
+      resizable: false,
+      movable: false,
+      skipTaskbar: true,
+      focusable: false,
+      show: false,
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true
+      }
+    });
+
+    const macroColor = macro?.color || '#4CAF50';
+
+    // Convert hex to RGB for calculations
+    const hexToRgb = (hex) => {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : null;
+    };
+
+    const rgb = hexToRgb(macroColor);
+
+    const indicatorHTML = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: transparent;
+          }
+          .area-indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 3px dashed ${macroColor};
+            border-radius: 4px;
+            box-shadow: 
+              0 0 0 1px rgba(255, 255, 255, 0.8),
+              0 0 15px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.6),
+              inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+            animation: areaHighlight 1.3s ease-out;
+            pointer-events: none;
+          }
+          .area-indicator::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            right: -6px;
+            bottom: -6px;
+            border: 2px solid rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.3);
+            border-radius: 8px;
+            animation: outerGlow 1.3s ease-out;
+          }
+          @keyframes areaHighlight {
+            0% { 
+              opacity: 0;
+              transform: scale(1.1);
+              border-width: 1px;
+            }
+            20% { 
+              opacity: 1;
+              transform: scale(1);
+              border-width: 3px;
+            }
+            80% { 
+              opacity: 1;
+              transform: scale(1);
+              border-width: 3px;
+            }
+            100% { 
+              opacity: 0;
+              transform: scale(0.98);
+              border-width: 2px;
+            }
+          }
+          @keyframes outerGlow {
+            0% { 
+              opacity: 0;
+              transform: scale(1.2);
+            }
+            20% { 
+              opacity: 0.6;
+              transform: scale(1);
+            }
+            80% { 
+              opacity: 0.6;
+              transform: scale(1);
+            }
+            100% { 
+              opacity: 0;
+              transform: scale(0.95);
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="area-indicator"></div>
+      </body>
+      </html>
+    `;
+
+    indicatorWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(indicatorHTML)}`);
+    indicatorWindow.show();
+
+    // Close indicator window after animation
+    setTimeout(() => {
+      indicatorWindow.close();
+    }, 1300);
+  }
 
   showToastNotification(macroName) {
     const primaryDisplay = screen.getPrimaryDisplay();
@@ -470,7 +613,7 @@ class FTCapture {
             justify-content: center;
             margin-left: 12px;
             flex-shrink: 0;
-            animation: checkPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.2s both;
+            animation: checkPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.2s both;
           }
           .check-mark::after {
             content: '✓';
