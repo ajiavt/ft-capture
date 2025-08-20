@@ -260,7 +260,15 @@
         }
 
         function confirmSelection() {
+            // Send log to main process so it appears in WebStorm terminal
+            ipcRenderer.send('debug-log', '=== CONFIRM SELECTION START ===');
+            ipcRenderer.send('debug-log', 'Selection state: ' + selectionState);
+            ipcRenderer.send('debug-log', 'Current macro ID: ' + currentMacroId);
+
             if (selectionState !== 'selected' || !currentMacroId) {
+                ipcRenderer.send('debug-log', 'ERROR: Invalid state or missing macro ID');
+                ipcRenderer.send('debug-log', '- selectionState should be "selected", got: ' + selectionState);
+                ipcRenderer.send('debug-log', '- currentMacroId should exist, got: ' + currentMacroId);
                 return;
             }
 
@@ -269,37 +277,57 @@
             const width = Math.abs(endX - startX);
             const height = Math.abs(endY - startY);
 
+            ipcRenderer.send('debug-log', 'Area coordinates calculated: ' + JSON.stringify({ left, top, width, height }));
+
             // Minimum size check
             if (width < 10 || height < 10) {
+                ipcRenderer.send('debug-log', 'ERROR: Area too small: ' + width + 'x' + height);
                 alert('Selection area too small. Please select a larger area.');
                 resetSelection();
                 return;
             }
 
-            // Get screen position (account for multiple displays)
-            const { screen } = require('electron');
-            const display = screen.getDisplayNearestPoint({x: left, y: top});
+            ipcRenderer.send('debug-log', 'Area size validation passed');
 
+            // Create area object with relative coordinates (no display offset needed)
             const area = {
-                x: left + display.bounds.x,
-                y: top + display.bounds.y,
+                x: left,
+                y: top,
                 width: width,
                 height: height
             };
 
+            ipcRenderer.send('debug-log', 'Area object created: ' + JSON.stringify(area));
+
             // Update macro with area
+            ipcRenderer.send('debug-log', 'Loading macros from store...');
             const macros = store.get('macros', []);
+            ipcRenderer.send('debug-log', 'Current macros array: ' + JSON.stringify(macros));
+
             const macroIndex = macros.findIndex(m => m.id === currentMacroId);
+            ipcRenderer.send('debug-log', 'Macro index found: ' + macroIndex);
 
             if (macroIndex !== -1) {
+                ipcRenderer.send('debug-log', 'Updating macro at index ' + macroIndex + ' with area...');
                 macros[macroIndex].area = area;
-                store.set('macros', macros);
 
+                ipcRenderer.send('debug-log', 'Saving updated macros to store...');
+                store.set('macros', macros);
+                ipcRenderer.send('debug-log', 'Macros saved successfully');
+
+                ipcRenderer.send('debug-log', 'Sending IPC message to main process...');
                 // Notify main process
                 ipcRenderer.send('macro-area-assigned', currentMacroId, area);
+                ipcRenderer.send('debug-log', 'IPC message sent: macro-area-assigned');
 
+                ipcRenderer.send('debug-log', 'Closing overlay window...');
                 // Close overlay
                 window.close();
+                ipcRenderer.send('debug-log', '=== CONFIRM SELECTION END ===');
+            } else {
+                ipcRenderer.send('debug-log', 'ERROR: Macro not found in array!');
+                ipcRenderer.send('debug-log', 'Looking for macro ID: ' + currentMacroId);
+                ipcRenderer.send('debug-log', 'Available macro IDs: ' + JSON.stringify(macros.map(m => m.id)));
             }
         }
 

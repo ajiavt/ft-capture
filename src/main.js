@@ -15,25 +15,42 @@ class FTCapture {
   }
 
   setupIPC() {
+    // Debug log handler - displays overlay logs in WebStorm terminal
+    ipcMain.on('debug-log', (event, message) => {
+      console.log('[OVERLAY]', message);
+    });
+
     ipcMain.on('start-area-selection', () => {
+      console.log('IPC: start-area-selection received');
       this.startAreaSelection();
     });
 
     ipcMain.on('macro-area-assigned', (event, macroId, area) => {
+      console.log('=== IPC: macro-area-assigned received ===');
+      console.log('Macro ID:', macroId);
+      console.log('Area data:', area);
+
+      console.log('Reloading macros from store...');
       this.macros = this.store.get('macros', []);
+      console.log('Current macros after reload:', this.macros);
+
       this.closeOverlays();
       this.isSelecting = false;
 
+      console.log('Updating tray menu...');
       // Update tray menu to reflect new macro count
       this.updateTrayMenu();
 
+      console.log('Refreshing hotkeys...');
       // Refresh hotkeys to include new macro
       this.registerHotkeys();
 
       // Notify settings window if open
       if (this.settingsWindow) {
+        console.log('Notifying settings window...');
         this.settingsWindow.webContents.send('area-assigned');
       }
+      console.log('=== IPC: macro-area-assigned completed ===');
     });
 
     ipcMain.on('area-selection-cancelled', () => {
@@ -208,12 +225,14 @@ class FTCapture {
     }
 
     try {
+      console.log('Capturing macro:', macro.name, 'with area:', macro.area);
+
       // Use desktopCapturer for reliable cross-platform capture
       const { desktopCapturer } = require('electron');
 
       const sources = await desktopCapturer.getSources({
         types: ['screen'],
-        thumbnailSize: { width: 1920, height: 1080 }
+        thumbnailSize: screen.getPrimaryDisplay().size
       });
 
       if (sources.length === 0) {
@@ -224,7 +243,10 @@ class FTCapture {
       const source = sources[0];
       const fullImage = source.thumbnail;
 
-      // Crop the image to the specified area
+      console.log('Full image size:', fullImage.getSize());
+      console.log('Screen size:', screen.getPrimaryDisplay().size);
+
+      // Crop the image to the specified area (area coordinates are already screen coordinates)
       const croppedImage = await this.cropImageAsync(fullImage, macro.area);
 
       // Copy to clipboard (main feature as requested)
