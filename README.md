@@ -13,9 +13,25 @@
 
 ---
 
-## 💡 Ide Kenapa Saya Membuat Ini
+## 💡 Why I Created This
 
-Awalnya saya merasa kesulitan harus mendokumentasikan sesuatu, saat membuat Functional Test (kebutuhan kantor saya), saya harus menscreenshot banyak hal dengan berbeda area seleksi, tapi alat screenshot yang saya gunakan tidak menyediakan itu. Saya kepikiran untuk membuat sebuah makro yang jika ditekan maka akan menscreenshot area seleksi tertentu. Dan terciptalah aplikasi ini.
+As a software tester and developer, I found myself constantly frustrated during functional testing documentation at my workplace. The process was painfully repetitive and time-consuming - I needed to capture dozens of screenshots from different areas of the screen for each test case, but existing screenshot tools were simply inadequate for this workflow.
+
+**The Problem:** Traditional screenshot tools forced me to manually select areas every single time, which was:
+- ⏰ **Time-consuming** - Wasting precious hours on repetitive manual selections
+- 😤 **Frustrating** - Breaking my testing flow and concentration
+- 📝 **Inconsistent** - Different area selections led to misaligned documentation
+- 🔄 **Inefficient** - No way to automate or standardize the capture process
+
+**The Solution:** I envisioned a macro-based system where I could:
+- 🎯 Pre-define specific screen areas once
+- ⌨️ Assign keyboard shortcuts to each area
+- ⚡ Instantly capture any predefined area with a single keystroke
+- 📋 Have screenshots automatically copied to clipboard for immediate pasting
+
+What started as a personal productivity tool to solve my daily testing challenges has evolved into **FT Capture** - a professional screenshot application that transforms the way you document, test, and share visual information.
+
+> *"From hours of manual screenshot work to seconds of automated capture - this tool gave me back my time and sanity during functional testing."*
 
 ## ⭐ Features
 
@@ -108,6 +124,17 @@ npm run build
 - **Change Area**: Redefine the capture region
 - **Test**: Preview capture without using hotkey
 - **Delete**: Remove unwanted macros
+
+## ⚠️ Important Usage Notes
+
+### Settings Window Behavior
+To prevent the Settings window from appearing during screenshots while working in other applications:
+
+- **✅ Recommended**: **Minimize** or **close** the Settings window before taking screenshots
+- **✅ Alternative**: Keep the Settings window focused only when actively configuring macros
+- **📌 Access**: You can always reopen Settings from the system tray icon
+
+*This ensures uninterrupted workflow when capturing screenshots while working in other applications.*
 
 ## ⌨️ Default Hotkeys
 

@@ -5,11 +5,13 @@ class WindowManager {
         this.ftCapture = ftCapture;
         this.settingsWindow = null;
         this.overlayWindows = [];
+        this.settingsWasFocused = false; // Track if settings was actually focused, not just visible
     }
 
     openSettings() {
         if (this.settingsWindow) {
             this.settingsWindow.focus();
+            this.settingsWasFocused = true;
             return;
         }
 
@@ -25,13 +27,30 @@ class WindowManager {
             title: 'FT Capture Settings',
             titleBarStyle: 'hiddenInset',
             vibrancy: 'window',
-            backgroundColor: '#f5f5f5'
+            backgroundColor: '#f5f5f5',
+            show: false // Don't show immediately
         });
 
         this.settingsWindow.loadFile('src/settings.html');
 
         this.settingsWindow.on('closed', () => {
             this.settingsWindow = null;
+            this.settingsWasFocused = false;
+        });
+
+        // Track focus state changes
+        this.settingsWindow.on('focus', () => {
+            this.settingsWasFocused = true;
+        });
+
+        this.settingsWindow.on('blur', () => {
+            this.settingsWasFocused = false;
+        });
+
+        // Show after loading to prevent flash
+        this.settingsWindow.once('ready-to-show', () => {
+            this.settingsWindow.show();
+            this.settingsWasFocused = true;
         });
     }
 
@@ -72,13 +91,18 @@ class WindowManager {
         });
         this.overlayWindows = [];
 
-        if (this.settingsWindow && !this.settingsWindow.isDestroyed()) {
+        // Only show settings window if it was actually focused before area selection
+        if (this.settingsWindow && !this.settingsWindow.isDestroyed() && this.settingsWasFocused) {
             this.settingsWindow.show();
+            this.settingsWindow.focus();
         }
     }
 
     hideSettings() {
-        if (this.settingsWindow) {
+        if (this.settingsWindow && this.settingsWindow.isVisible()) {
+            // Check if it's actually focused before hiding
+            const wasFocused = this.settingsWindow.isFocused();
+            this.settingsWasFocused = wasFocused;
             this.settingsWindow.hide();
         }
     }
@@ -86,6 +110,8 @@ class WindowManager {
     showSettings() {
         if (this.settingsWindow && !this.settingsWindow.isDestroyed()) {
             this.settingsWindow.show();
+            this.settingsWindow.focus();
+            this.settingsWasFocused = true;
         }
     }
 
