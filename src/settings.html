@@ -867,14 +867,15 @@
         }
 
         function browseSavePath() {
-            const { dialog } = require('electron').remote || require('@electron/remote');
-            const result = dialog.showOpenDialogSync({
-                properties: ['openDirectory']
+            ipcRenderer.invoke('dialog:openDirectory').then(result => {
+                if (result && result[0]) {
+                    document.getElementById('save-path').value = result[0];
+                    store.set('savePath', result[0]);
+                }
+            }).catch(error => {
+                console.error('Failed to open directory dialog:', error);
+                alert('Unable to open folder dialog. Please try again.');
             });
-            if (result && result[0]) {
-                document.getElementById('save-path').value = result[0];
-                store.set('savePath', result[0]);
-            }
         }
 
         function toggleAutoSave() {

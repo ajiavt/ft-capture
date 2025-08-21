@@ -1,4 +1,4 @@
-const { app, BrowserWindow, globalShortcut, Tray, Menu, screen, clipboard, nativeImage, ipcMain, Notification } = require('electron');
+const { app, BrowserWindow, globalShortcut, Tray, Menu, screen, clipboard, nativeImage, ipcMain, Notification, dialog } = require('electron');
 const path = require('path');
 const Store = require('electron-store');
 
@@ -66,6 +66,22 @@ class FTCapture {
 
     ipcMain.on('test-capture', (event, macroId) => {
       this.captureMacro(macroId);
+    });
+
+    ipcMain.handle('dialog:openFile', async (event, options) => {
+      const result = await dialog.showOpenDialog(this.settingsWindow, {
+        properties: ['openFile', 'multiSelections'],
+        ...options
+      });
+      return result.filePaths;
+    });
+
+    ipcMain.handle('dialog:openDirectory', async (event, options) => {
+      const result = await dialog.showOpenDialog(this.settingsWindow, {
+        properties: ['openDirectory'],
+        ...options
+      });
+      return result.filePaths;
     });
   }
 
