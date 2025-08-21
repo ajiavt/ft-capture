@@ -47,14 +47,28 @@ What started as a personal productivity tool to solve my daily testing challenge
 
 ## 🖼️ Screenshots
 
+### Settings Interface
 <div align="center">
-  <img src="https://via.placeholder.com/800x500/00b894/ffffff?text=Settings+Interface" alt="Settings Interface" width="700">
-  <p><em>Intuitive settings interface for managing screenshot macros</em></p>
+  <img src="assets/ss-ui-setting.png" alt="FT Capture Settings Interface" width="800">
+  <p><em>Professional settings interface for managing screenshot macros with intuitive controls</em></p>
 </div>
 
+### Area Selection Process
 <div align="center">
-  <img src="https://via.placeholder.com/600x300/00cec9/ffffff?text=Area+Selection" alt="Area Selection" width="500">
-  <p><em>Visual area selection with real-time preview</em></p>
+  <img src="assets/ss-select-area.png" alt="Visual Area Selection" width="700">
+  <p><em>Interactive area selection with visual overlay - simply click and drag to define your capture region</em></p>
+</div>
+
+### Selection Confirmation
+<div align="center">
+  <img src="assets/ss-confirm-select.png" alt="Area Selection Confirmation" width="700">
+  <p><em>Clear visual confirmation of selected area before finalizing the macro setup</em></p>
+</div>
+
+### Capture Success Notification
+<div align="center">
+  <img src="assets/ss-when-captured.png" alt="Screenshot Captured Notification" width="600">
+  <p><em>Beautiful toast notification with visual feedback when screenshot is successfully captured</em></p>
 </div>
 
 ## 🚀 Quick Start
