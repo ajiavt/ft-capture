@@ -9,6 +9,21 @@
     <img src="https://img.shields.io/badge/Node.js-18+-green?style=flat-square&logo=node.js" alt="Node.js">
     <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="License">
   </p>
+  
+  <p>
+    <img src="https://img.shields.io/github/v/release/ajiavt/ft-capture?style=flat-square&logo=github" alt="Latest Release">
+    <img src="https://img.shields.io/github/downloads/ajiavt/ft-capture/total?style=flat-square&logo=github" alt="Total Downloads">
+    <img src="https://img.shields.io/github/downloads/ajiavt/ft-capture/latest/total?style=flat-square&logo=github" alt="Latest Release Downloads">
+  </p>
+  
+  <p>
+    <a href="https://github.com/ajiavt/ft-capture/releases/latest/download/FT%20Capture-1.0.0-arm64.dmg">
+      <img src="https://img.shields.io/badge/Download-macOS-blue?style=for-the-badge&logo=apple" alt="Download for macOS">
+    </a>
+    <a href="https://github.com/ajiavt/ft-capture/releases/latest/download/FT%20Capture%20Setup%201.0.0.exe">
+      <img src="https://img.shields.io/badge/Download-Windows-blue?style=for-the-badge&logo=windows" alt="Download for Windows">
+    </a>
+  </p>
 </div>
 
 ---
