@@ -296,10 +296,12 @@ html, body {
 
 .settings-item {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
-    padding: 15px 0;
+    padding: 20px 0;
     border-bottom: 1px solid #dfe6e9;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .settings-item:last-child {
@@ -310,22 +312,152 @@ html, body {
     font-weight: 600;
     font-size: 16px;
     color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.settings-description {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.4;
+    margin-top: 4px;
+}
+
+.settings-control {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.save-path-container {
+    display: flex;
+    width: 100%;
+    gap: 12px;
+    align-items: center;
 }
 
 .save-path-input {
     flex: 1;
-    padding: 10px 12px;
+    padding: 12px 16px;
     border: 2px solid #dfe6e9;
-    border-radius: 6px;
-    margin-right: 10px;
+    border-radius: 8px;
     font-size: 14px;
-    transition: border-color 0.2s ease;
+    transition: all 0.2s ease;
+    background: #f8f9fa;
+    font-family: 'Monaco', 'Menlo', monospace;
+    color: #555;
 }
 
 .save-path-input:focus {
     outline: none;
     border-color: #00b894;
     box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1);
+    background: white;
+}
+
+.save-path-input::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+.browse-btn {
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 8px rgba(0, 184, 148, 0.2);
+    min-width: 120px;
+    justify-content: center;
+}
+
+.browse-btn:hover {
+    background: linear-gradient(135deg, #00a085 0%, #008a73 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 184, 148, 0.3);
+}
+
+.browse-btn:active {
+    transform: translateY(0);
+}
+
+/* Custom Toggle Switch */
+.toggle-switch {
+    position: relative;
+    width: 60px;
+    height: 32px;
+    background: #dfe6e9;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    outline: none;
+}
+
+.toggle-switch.checked {
+    background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+    box-shadow: 0 2px 8px rgba(0, 184, 148, 0.3);
+}
+
+.toggle-switch::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 24px;
+    height: 24px;
+    background: white;
+    border-radius: 50%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.toggle-switch.checked::before {
+    transform: translateX(28px);
+}
+
+.auto-save-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.auto-save-info {
+    flex: 1;
+}
+
+.auto-save-status {
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 4px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.auto-save-status.enabled {
+    background: rgba(0, 184, 148, 0.1);
+    color: #00b894;
+}
+
+.auto-save-status.disabled {
+    background: rgba(223, 230, 233, 0.6);
+    color: #666;
+}
+
+.settings-icon {
+    color: #00b894;
+    font-size: 18px;
 }
 
 .modal {

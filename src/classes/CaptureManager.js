@@ -50,7 +50,7 @@ class CaptureManager {
             clipboard.writeImage(croppedImage);
 
             // Auto-save to file if enabled
-            const autoSave = this.ftCapture.store.get('autoSave', true);
+            const autoSave = this.ftCapture.store.get('autoSave', false); // Changed default to false
             if (autoSave) {
                 this.saveImage(croppedImage, macro);
             }

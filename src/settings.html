@@ -26,15 +26,39 @@
                     <h3><i class="fas fa-cog"></i> General Settings</h3>
                     <div class="settings-card">
                         <div class="settings-item">
-                            <span class="settings-label">Save Path:</span>
-                            <div style="display: flex; flex: 1; margin-left: 20px;">
-                                <input type="text" id="save-path" class="save-path-input" placeholder="Default: Desktop">
-                                <button class="btn btn-secondary" onclick="browseSavePath()"><i class="fas fa-folder"></i> Browse</button>
+                            <div class="settings-label">
+                                <i class="fas fa-folder-open settings-icon"></i>
+                                Save Path
+                            </div>
+                            <div class="settings-description">
+                                Choose where captured screenshots will be saved. Leave empty for default Desktop location.
+                            </div>
+                            <div class="settings-control">
+                                <div class="save-path-container">
+                                    <input type="text" id="save-path" class="save-path-input" placeholder="Default: ~/Desktop">
+                                    <button class="browse-btn" onclick="browseSavePath()">
+                                        <i class="fas fa-folder"></i>
+                                        Browse
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <div class="settings-item">
-                            <span class="settings-label">Auto-save to file:</span>
-                            <input type="checkbox" id="auto-save" onchange="toggleAutoSave()">
+                            <div class="settings-label">
+                                <i class="fas fa-save settings-icon"></i>
+                                Auto-save to file
+                            </div>
+                            <div class="settings-description">
+                                Automatically save screenshots to files. When disabled, screenshots are only copied to clipboard.
+                            </div>
+                            <div class="settings-control">
+                                <div class="auto-save-container">
+                                    <div class="auto-save-info">
+                                        <div class="auto-save-status" id="auto-save-status">Disabled</div>
+                                    </div>
+                                    <button class="toggle-switch" id="auto-save-toggle" onclick="toggleAutoSave()"></button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

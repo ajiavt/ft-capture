@@ -128,9 +128,40 @@ class SettingsManager {
 
     loadSettings() {
         const savePath = this.store.get('savePath', '');
-        const autoSave = this.store.get('autoSave', true);
+        const autoSave = this.store.get('autoSave', false); // Changed default to false (unchecked)
+
         document.getElementById('save-path').value = savePath;
-        document.getElementById('auto-save').checked = autoSave;
+        this.updateAutoSaveToggle(autoSave);
+    }
+
+    updateAutoSaveToggle(isEnabled) {
+        const toggle = document.getElementById('auto-save-toggle');
+        const status = document.getElementById('auto-save-status');
+
+        if (isEnabled) {
+            toggle.classList.add('checked');
+            status.textContent = 'Enabled';
+            status.className = 'auto-save-status enabled';
+        } else {
+            toggle.classList.remove('checked');
+            status.textContent = 'Disabled';
+            status.className = 'auto-save-status disabled';
+        }
+    }
+
+    toggleAutoSave() {
+        const currentAutoSave = this.store.get('autoSave', false);
+        const newAutoSave = !currentAutoSave;
+
+        this.store.set('autoSave', newAutoSave);
+        this.updateAutoSaveToggle(newAutoSave);
+
+        // Show a brief visual feedback
+        const toggle = document.getElementById('auto-save-toggle');
+        toggle.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            toggle.style.transform = 'scale(1)';
+        }, 100);
     }
 
     setupColorPresets() {
@@ -274,8 +305,18 @@ class SettingsManager {
     }
 
     toggleAutoSave() {
-        const autoSave = document.getElementById('auto-save').checked;
-        this.store.set('autoSave', autoSave);
+        const currentAutoSave = this.store.get('autoSave', false);
+        const newAutoSave = !currentAutoSave;
+
+        this.store.set('autoSave', newAutoSave);
+        this.updateAutoSaveToggle(newAutoSave);
+
+        // Show a brief visual feedback
+        const toggle = document.getElementById('auto-save-toggle');
+        toggle.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            toggle.style.transform = 'scale(1)';
+        }, 100);
     }
 
     startHotkeyDetection() {
