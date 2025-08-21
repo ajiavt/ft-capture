@@ -31,13 +31,15 @@
       "src/**/*",
       "assets/**/*"
     ],
+    "icon": "assets/icon.png",
     "mac": {
       "category": "public.app-category.utilities",
-      "target": "dmg"
+      "target": "dmg",
+      "icon": "assets/icon-512.png"
     },
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "assets/icon.png"
     }
   }
 }
-
