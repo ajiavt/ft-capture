@@ -7,22 +7,15 @@ class IPCManager {
     }
 
     setupHandlers() {
-        // Debug log handler
         ipcMain.on('debug-log', (event, message) => {
             console.log('[OVERLAY]', message);
         });
 
-        // Area selection handlers
         ipcMain.on('start-area-selection', () => {
-            console.log('IPC: start-area-selection received');
             this.ftCapture.areaSelector.start();
         });
 
         ipcMain.on('macro-area-assigned', (event, macroId, area) => {
-            console.log('=== IPC: macro-area-assigned received ===');
-            console.log('Macro ID:', macroId);
-            console.log('Area data:', area);
-
             this.ftCapture.handleAreaAssigned(macroId, area);
         });
 
@@ -30,7 +23,6 @@ class IPCManager {
             this.ftCapture.areaSelector.cancel();
         });
 
-        // Macro management handlers
         ipcMain.on('refresh-hotkeys', () => {
             this.ftCapture.macroManager.refreshHotkeys();
             this.ftCapture.trayManager.updateMenu();
@@ -40,7 +32,6 @@ class IPCManager {
             this.ftCapture.captureManager.captureMacro(macroId);
         });
 
-        // Dialog handlers
         ipcMain.handle('dialog:openFile', async (event, options) => {
             const result = await dialog.showOpenDialog(this.ftCapture.windowManager.settingsWindow, {
                 properties: ['openFile', 'multiSelections'],

@@ -57,28 +57,20 @@ class MacroManager {
     }
 
     refreshHotkeys() {
-        // Clear existing hotkeys
         globalShortcut.unregisterAll();
 
-        // Register macro hotkeys
         const macros = this.getMacros();
-        let registeredCount = 0;
-
         macros.forEach(macro => {
-            if (macro.area) { // Only register if area is assigned
+            if (macro.area) {
                 try {
                     globalShortcut.register(macro.hotkey, () => {
                         this.ftCapture.captureManager.captureMacro(macro.id);
                     });
-                    console.log(`Registered hotkey: ${macro.hotkey} for macro "${macro.name}"`);
-                    registeredCount++;
                 } catch (error) {
                     console.error(`Failed to register hotkey ${macro.hotkey}:`, error);
                 }
             }
         });
-
-        console.log(`Total active macros: ${registeredCount}/${macros.length}`);
     }
 
     getStatistics() {

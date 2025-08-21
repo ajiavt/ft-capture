@@ -72,7 +72,6 @@ class WindowManager {
         });
         this.overlayWindows = [];
 
-        // Show settings window again if it was open
         if (this.settingsWindow && !this.settingsWindow.isDestroyed()) {
             this.settingsWindow.show();
         }

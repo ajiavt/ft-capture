@@ -22,9 +22,6 @@ class CaptureManager {
         }
 
         try {
-            console.log('Capturing macro:', macro.name, 'with area:', macro.area);
-
-            // Use desktopCapturer for reliable cross-platform capture
             const { desktopCapturer } = require('electron');
 
             const sources = await desktopCapturer.getSources({
@@ -36,26 +33,17 @@ class CaptureManager {
                 throw new Error('No screen sources available');
             }
 
-            // Get the appropriate screen source
             const source = sources[0];
             const fullImage = source.thumbnail;
-
-            console.log('Full image size:', fullImage.getSize());
-            console.log('Screen size:', screen.getPrimaryDisplay().size);
-
-            // Crop the image to the specified area
             const croppedImage = await this.cropImageAsync(fullImage, macro.area);
 
-            // Copy to clipboard (main feature)
             clipboard.writeImage(croppedImage);
 
-            // Auto-save to file if enabled
-            const autoSave = this.ftCapture.store.get('autoSave', false); // Changed default to false
+            const autoSave = this.ftCapture.store.get('autoSave', false);
             if (autoSave) {
                 this.saveImage(croppedImage, macro);
             }
 
-            // Show success notifications
             this.showSuccessNotification(macro.name);
 
         } catch (error) {
@@ -65,12 +53,10 @@ class CaptureManager {
     }
 
     async cropImageAsync(image, area) {
-        // Create a cropped version using nativeImage methods
         const originalSize = image.getSize();
         const primaryDisplay = screen.getPrimaryDisplay();
         const scale = originalSize.width / primaryDisplay.size.width;
 
-        // Scale coordinates based on image resolution
         const scaledArea = {
             x: Math.round(area.x * scale),
             y: Math.round(area.y * scale),
@@ -78,13 +64,11 @@ class CaptureManager {
             height: Math.round(area.height * scale)
         };
 
-        // Ensure coordinates are within bounds
         scaledArea.x = Math.max(0, Math.min(scaledArea.x, originalSize.width - 1));
         scaledArea.y = Math.max(0, Math.min(scaledArea.y, originalSize.height - 1));
         scaledArea.width = Math.min(scaledArea.width, originalSize.width - scaledArea.x);
         scaledArea.height = Math.min(scaledArea.height, originalSize.height - scaledArea.y);
 
-        // Use nativeImage crop method
         return image.crop({
             x: scaledArea.x,
             y: scaledArea.y,
@@ -97,12 +81,10 @@ class CaptureManager {
         const defaultPath = path.join(os.homedir(), 'Desktop');
         const savePath = this.ftCapture.store.get('savePath', defaultPath);
 
-        // Create directory if it doesn't exist
         if (!fs.existsSync(savePath)) {
             fs.mkdirSync(savePath, { recursive: true });
         }
 
-        // Use sequential numbering
         const timestamp = Date.now();
         const safeName = macro.name.replace(/[^a-zA-Z0-9]/g, '_');
         const filename = `ft-capture-${safeName}-${timestamp}.png`;
@@ -110,16 +92,12 @@ class CaptureManager {
 
         try {
             fs.writeFileSync(filepath, image.toPNG());
-            console.log(`Saved to: ${filepath}`);
         } catch (error) {
             console.error('Save failed:', error);
         }
     }
 
     showNotification(message) {
-        console.log('Notification:', message);
-
-        // Show system notification
         if (Notification.isSupported()) {
             new Notification({
                 title: 'FT Capture',
@@ -131,13 +109,8 @@ class CaptureManager {
     }
 
     showSuccessNotification(macroName) {
-        // 1. Show screenshot area indicator
         this.showScreenshotAreaIndicator(macroName);
-
-        // 2. Toast notification
         this.showToastNotification(macroName);
-
-        // 3. System notification
         this.showNotification(`"${macroName}" captured! 📋 Ready to paste`);
     }
 
@@ -174,7 +147,6 @@ class CaptureManager {
         indicatorWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(indicatorHTML)}`);
         indicatorWindow.show();
 
-        // Close indicator window after 1 second
         setTimeout(() => {
             indicatorWindow.close();
         }, 1000);
@@ -184,7 +156,6 @@ class CaptureManager {
         const primaryDisplay = screen.getPrimaryDisplay();
         const { width } = primaryDisplay.workAreaSize;
 
-        // Get macro color
         const macro = this.ftCapture.macroManager.getMacros().find(m => m.name === macroName);
         const macroColor = macro?.color || '#4CAF50';
         const rgb = this.hexToRgb(macroColor);
@@ -212,7 +183,6 @@ class CaptureManager {
         toastWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(toastHTML)}`);
         toastWindow.show();
 
-        // Auto-close toast after 1 second
         setTimeout(() => {
             toastWindow.close();
         }, 1000);
@@ -224,7 +194,7 @@ class CaptureManager {
             r: parseInt(result[1], 16),
             g: parseInt(result[2], 16),
             b: parseInt(result[3], 16)
-        } : { r: 76, g: 175, b: 80 }; // Default green
+        } : { r: 76, g: 175, b: 80 };
     }
 
     generateIndicatorHTML(macroColor, rgb) {

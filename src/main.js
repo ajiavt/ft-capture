@@ -1,7 +1,6 @@
 const { app, globalShortcut } = require('electron');
 const Store = require('electron-store');
 
-// Import our modular classes
 const TrayManager = require('./classes/TrayManager');
 const WindowManager = require('./classes/WindowManager');
 const IPCManager = require('./classes/IPCManager');
@@ -13,7 +12,6 @@ class FTCapture {
   constructor() {
     this.store = new Store();
 
-    // Initialize all managers
     this.trayManager = new TrayManager(this);
     this.windowManager = new WindowManager(this);
     this.ipcManager = new IPCManager(this);
@@ -27,7 +25,6 @@ class FTCapture {
     this.macroManager.refreshHotkeys();
   }
 
-  // Simplified public interface methods
   openSettings() {
     this.windowManager.openSettings();
   }
@@ -37,26 +34,12 @@ class FTCapture {
   }
 
   handleAreaAssigned(macroId, area) {
-    console.log('=== Handling area assignment ===');
-    console.log('Macro ID:', macroId);
-    console.log('Area data:', area);
-
-    // Update macro with new area
     const success = this.macroManager.updateMacroArea(macroId, area);
 
     if (success) {
-      console.log('Area successfully assigned to macro');
-
-      // Complete area selection
       this.areaSelector.complete();
-
-      // Update UI
       this.trayManager.updateMenu();
       this.windowManager.notifySettingsWindow('area-assigned');
-
-      console.log('=== Area assignment completed ===');
-    } else {
-      console.error('Failed to assign area to macro');
     }
   }
 
@@ -68,7 +51,6 @@ class FTCapture {
   }
 }
 
-// App lifecycle management
 let ftCapture;
 
 app.whenReady().then(() => {
@@ -77,7 +59,7 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', (e) => {
-  e.preventDefault(); // Keep app running in background
+  e.preventDefault();
 });
 
 app.on('will-quit', () => {

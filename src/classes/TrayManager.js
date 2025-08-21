@@ -7,7 +7,6 @@ class TrayManager {
     }
 
     create() {
-        // Create simple tray icon using text
         const icon = nativeImage.createFromDataURL('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==');
         this.tray = new Tray(icon);
         this.tray.setTitle('📷');

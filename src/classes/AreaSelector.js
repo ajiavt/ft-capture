@@ -12,10 +12,8 @@ class AreaSelector {
         this.isSelecting = true;
         const displays = screen.getAllDisplays();
 
-        // Close settings window during selection
         this.ftCapture.windowManager.hideSettings();
 
-        // Create overlay window for each display
         displays.forEach(display => {
             this.ftCapture.windowManager.createOverlay(display);
         });
